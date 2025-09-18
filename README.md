@@ -35,4 +35,3 @@ chmod +x *.sh
 ### Calculate TMscores and Visualization
 cd code
 
-python calculate_TMscores_BSS.py
