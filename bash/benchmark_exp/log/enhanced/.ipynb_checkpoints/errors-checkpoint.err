@@ -1,0 +1,6 @@
+/var/slurmd/spool/slurmd/job28775804/slurm_script: line 71: /n/kou_lab/yongkai/SMICE/outputs_benchmark/3jv6A/enhanced_iter1_res/11_status.log: No such file or directory
+/var/slurmd/spool/slurmd/job28775804/slurm_script: line 76: /n/kou_lab/yongkai/SMICE/outputs_benchmark/3jv6A/enhanced_iter1_res/11_status.log: No such file or directory
+/var/slurmd/spool/slurmd/job28775804/slurm_script: line 83: /n/kou_lab/yongkai/SMICE/outputs_benchmark/3jv6A/enhanced_iter1_res/.log: No such file or directory
+/var/slurmd/spool/slurmd/job28775804/slurm_script: line 71: /n/kou_lab/yongkai/SMICE/outputs_benchmark/3jv6A/enhanced_iter2_res/22_status.log: No such file or directory
+/var/slurmd/spool/slurmd/job28775804/slurm_script: line 76: /n/kou_lab/yongkai/SMICE/outputs_benchmark/3jv6A/enhanced_iter2_res/22_status.log: No such file or directory
+/var/slurmd/spool/slurmd/job28775804/slurm_script: line 83: /n/kou_lab/yongkai/SMICE/outputs_benchmark/3jv6A/enhanced_iter2_res/5.log: No such file or directory
