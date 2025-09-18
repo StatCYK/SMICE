@@ -20,10 +20,14 @@ Upload and unzip MSA_cov75_all.zip to the "dataset" directory
 
 unzip pdbs_92.zip
 
-## run toy example
+
 
 
 ## Run Experiment on 92 foldswitching proteins
+### Setup configuration ###
+Change the paths in the ./config/config_SMICE_benchmark.json
+
+
 cd bash/benchmark_exp
 chmod +x *.sh
 ./run_SMICE_all.sh
