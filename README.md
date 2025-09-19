@@ -27,13 +27,10 @@ unzip pdbs_92.zip
 ### Setup configuration ###
 Change the paths in the ./config/config_SMICE_benchmark.json
 
-### Run Predictions ###
+### Run all ###
 cd bash/benchmark_exp
 chmod +x *.sh
 ./run_SMICE_all.sh
-
-### Run Representative Structure Extractions ###
-
 
 ## Analysis ##
 
