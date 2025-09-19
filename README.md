@@ -12,8 +12,11 @@ GCC >= 12
 conda env create -f SMICE.yml
 
 
+#### HHsuite
 
 #### colabFold
+
+#### Foldseek
 
 ## Dataset
 Upload and unzip MSA_cov75_all.zip to the "dataset" directory
