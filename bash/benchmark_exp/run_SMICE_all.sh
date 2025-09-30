@@ -18,9 +18,13 @@ for ((i=0; i<${#jobnames[@]}; i+=CHUNK_SIZE)); do
     echo "Submitted job '$jobname' with job ID $jobid1"
     
     # Submit the second job with dependency on the first
-    sbatch --dependency=afterok:$jobid1 -J "${jobname}_enhancedSamp" run_enhancedSamp.slurm "${chunk[@]}"
+    jobid2=$(sbatch --dependency=afterok:$jobid1 -J "${jobname}_enhancedSamp" run_enhancedSamp.slurm "${chunk[@]}" | awk '{print $4}')
     echo "Submitted dependent job '${jobname}_enhancedSamp' after job ID $jobid1"
-
+    
+    # Submit the second job with dependency on the first
+    sbatch --dependency=afterok:$jobid2 -J "${jobname}_enhancedSamp" run_Rep_extract.slurm "${chunk[@]}"
+    echo "Submitted dependent job '${jobname}_enhancedSamp' after job ID $jobid1"
+    
     # Small delay to avoid overwhelming the scheduler
     sleep 1
 done

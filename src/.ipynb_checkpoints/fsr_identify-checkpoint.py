@@ -137,7 +137,7 @@ def fsr_identify(jobname):
         
         # Now iteratively remove residues from either end to find no conserved core
         current_start, current_end = initial_start, initial_end
-        while current_end - current_start > 15:  # Need at least 15 residue
+        while current_end - current_start > 50:  # Need at least 50 residue
             # Calculate averages if we remove left or right residue
             avg_remove_left,_ = get_excluded_avg_std(current_start + 1, current_end)
             avg_remove_right,_ = get_excluded_avg_std(current_start, current_end - 1)
@@ -147,14 +147,14 @@ def fsr_identify(jobname):
             if avg_remove_left < avg_remove_right:
                 # Prefer to remove left if averages are equal
                 sum_including = avg_remove_left*(1+cur_conserved_size)**2-current_avg*cur_conserved_size**2
-                if sum_including/(2*cur_conserved_size) <= 4*initial_avg or current_end - current_start > 50:
+                if sum_including/(2*cur_conserved_size) <= 4*initial_avg:
                     current_start += 1
                     current_avg = avg_remove_left
                 else:
                     break
             else:
                 sum_including = avg_remove_right*(1+cur_conserved_size)**2-current_avg*cur_conserved_size**2
-                if sum_including/(2*cur_conserved_size) <= 4*initial_avg or current_end - current_start > 50:
+                if sum_including/(2*cur_conserved_size) <= 4*initial_avg:
                     current_end -= 1
                     current_avg = avg_remove_right
                 else:

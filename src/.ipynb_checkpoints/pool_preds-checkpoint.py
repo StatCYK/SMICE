@@ -110,8 +110,8 @@ def process_enhanced_jobname(jobname):
             outputs_bss = pd.read_json(f"{base_output_dir}{jobname}/bss_res/outputs_bss.json.zip")
             outputs = pd.DataFrame.from_records(outputs)
             outputs.to_json(base_output_dir+jobname+f"/outputs_enhanced.json.zip")
-            outputs_bss['source'] = 'BSS'
-            outputs['source'] = 'Enhanced'
+            outputs_bss['source'] = "SMICE_SeqSamp"
+            outputs['source'] = "SMICE_enhanced"
             # Combine dataframes
             combined_data = pd.concat([outputs_bss,outputs], ignore_index=True)
             combined_data.to_json(base_output_dir+jobname+f"/outputs_SMICE.json.zip")

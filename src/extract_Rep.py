@@ -113,7 +113,6 @@ for model in range(1,6):
     o = {}
     pattern = f"*_relaxed*model_{model:01d}*.pdb"
     pdb_files = glob.glob(os.path.join(f"{MSA_saved_dir}pdb", pattern))
-    print(pdb_files)
     score_file_pattern = f"*_model_{model:01d}*.json"
     score_file = glob.glob(os.path.join(f"{MSA_saved_dir}pdb", score_file_pattern))[0]
     with open(score_file,"r") as f:

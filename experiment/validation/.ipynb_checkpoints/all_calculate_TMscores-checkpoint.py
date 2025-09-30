@@ -21,78 +21,76 @@ import json
 with open('../config/config_SMICE_benchmark.json', 'r') as f:
     config = json.load(f)
 
-ALPHA_VALUES = np.arange(0,2.1,0.1)
-alpha_choice = 10#"adaptive"
-
 metadata_92 = pd.read_csv(config["meta_path"])
 base_output_dir = config["base_output_dir"]
 base_result_dir = config["base_result_dir"]
-jobnames = config["jobnames"]#config["FS"]#
+jobnames = config["jobnames"]
 true_pdb_path = config["true_pdb_path"]
 
-def process_BSS_jobname(jobname, save_fig_dir):
+def process_BSS_jobname(jobname, save_fig_dir, drawing_lamb = False):
+    """
+    Process sequential sampling job results by analyzing predicted structures
+    and comparing them to reference structures using TM-scores.
+    Args:
+        jobname (str): Name of the job to process
+        save_fig_dir (str): Directory to save output figures
+        drawing_lamb (bool): Whether to generate scatter plots colored by lambda values
+    """
+    
     try:
         meta_info = metadata_92[metadata_92['jobnames'] == jobname].iloc[0]
         ID1 = meta_info['Fold1']
         ID2 = meta_info['Fold2']
         Seq1 = meta_info['Seq1']
         Seq2 = meta_info['Seq2']
-        fsr_seq = meta_info["Sequence of fold-switching region"]#sequence#
-        TMscores_fsr = np.load(f"/n/home13/yongkai/Yongkai/Alphafold2/SS_AF2/metadata/{jobname}/TMscores_fsr.npy")# the tmscores(fsr) between two folds
-        if alpha_choice == "adaptive":
-            alpha_indice = np.argmin(TMscores_fsr)
-        else:
-            alpha_indice = alpha_choice
-        TMscore12 = TMscores_fsr[alpha_indice]
+        ID1_dir = true_pdb_path+ID1[0:4]+"_"+ID1[4]+".pdb"
+        ID2_dir = true_pdb_path+ID2[0:4]+"_"+ID2[4]+".pdb"
+        fsr_seq = meta_info["Sequence of fold-switching region"]
         sequence = meta_info['sequences']
-        TMscore1 = []
-        TMscore2 = []
+        fsr_seq_extend = extend_fsr_seq(fsr_seq,sequence,len(fsr_seq)) # extending fsr region
+        TMscore12 = compute_fsr_tmscore(ID1_dir, ID2_dir,fsr_seq_extend )
         outputs=[]
-        for ID in [ID1]:
-            fsr_seq_extend = extend_fsr_seq(fsr_seq,sequence,int(len(fsr_seq)*ALPHA_VALUES[alpha_indice]))
-            lamb_list = []
-            for lamb in [0,1,2,3]:
-                for n_neighbors in [10, 30]:
-                    pdb_path = base_output_dir+ID+"/bss_res/pdb_ss_bayes_colab_lamb%d_neighbors%d/"%(lamb,n_neighbors)
-                    msa_path = base_output_dir+ID+"/bss_res/msa_ss_bayes_lamb%d_neighbors%d/"%(lamb,n_neighbors)
-                    ID1_dir = true_pdb_path+ID1[0:4]+"_"+ID1[4]+".pdb"
-                    ID2_dir = true_pdb_path+ID2[0:4]+"_"+ID2[4]+".pdb"
-                    msa_file_pattern = f"ss*.a3m"
-                    msa_files = glob.glob(os.path.join(msa_path, msa_file_pattern))
-                    num_msa = len(msa_files)
-                    for model in range(1,6):
-                        for ss in range(num_msa):
-                            lamb_list.append(lamb)
-                            o = {}
-                            pattern = f"ss_{ss:02d}*_relaxed*model_{model:01d}*.pdb"
-                            pdb_files = glob.glob(os.path.join(pdb_path, pattern))
-                            score_file_pattern = f"ss_{ss:02d}*_model_{model:01d}*.json"
-                            if len(pdb_files)>0:
-                                tm_score1 = compute_fsr_tmscore(ID1_dir, pdb_files[0],fsr_seq_extend )
-                                tm_score2 = compute_fsr_tmscore(ID2_dir, pdb_files[0],fsr_seq_extend )
-                                score_file = glob.glob(os.path.join(pdb_path, score_file_pattern))[0]
-                                pdb_file = pdb_files[0]
-                                with open(score_file,"r") as f:
-                                    plddt_scores = pd.read_json(f)
-                                    avg_pae = np.mean(np.mean(np.array(plddt_scores["pae"])))
-                                    max_pae = plddt_scores["max_pae"].iloc[0]
-                                    ptm = plddt_scores["ptm"].iloc[0]
-                                    avg_plddt = np.mean(plddt_scores["plddt"])/100
-                                TMscore1.append(tm_score1)
-                                TMscore2.append(tm_score2)
-                                o.update({'msa_path': f"{msa_path}ss_{ss:02d}.a3m"})
-                                o.update({'pdb_path': pdb_file})
-                                o.update({'score_path': score_file})
-                                o.update({'model': model})
-                                o.update({'avg_plddt': avg_plddt})
-                                o.update({'avg_pae': avg_pae })
-                                o.update({'max_pae': max_pae})
-                                o.update({'ptm': ptm})
-                                o.update({'TMscore1': tm_score1})
-                                o.update({'TMscore2': tm_score2})
-                                o.update({'MSA_ID': ID})
-                                o.update
-                                outputs.append(o)  
+        lamb_list = []
+        for lamb in [0,1,2,3]:
+            for n_neighbors in [10, 30]:
+                pdb_path = base_output_dir+jobname+"/bss_res/pdb_ss_bayes_colab_lamb%d_neighbors%d/"%(lamb,n_neighbors)
+                msa_path = base_output_dir+jobname+"/bss_res/msa_ss_bayes_lamb%d_neighbors%d/"%(lamb,n_neighbors)
+                msa_file_pattern = f"ss*.a3m"
+                msa_files = glob.glob(os.path.join(msa_path, msa_file_pattern))
+                num_msa = len(msa_files)
+                for model in range(1,6):
+                    for ss in range(num_msa):
+                        lamb_list.append(lamb)
+                        o = {}
+                        pattern = f"ss_{ss:02d}*_relaxed*model_{model:01d}*.pdb"
+                        pdb_files = glob.glob(os.path.join(pdb_path, pattern))
+                        score_file_pattern = f"ss_{ss:02d}*_model_{model:01d}*.json"
+                        if len(pdb_files)>0:
+                            tm_score1 = compute_fsr_tmscore(ID1_dir, pdb_files[0],fsr_seq_extend )
+                            tm_score2 = compute_fsr_tmscore(ID2_dir, pdb_files[0],fsr_seq_extend )
+                            score_file = glob.glob(os.path.join(pdb_path, score_file_pattern))[0]
+                            pdb_file = pdb_files[0]
+                            with open(score_file,"r") as f:
+                                plddt_scores = pd.read_json(f)
+                                avg_pae = np.mean(np.mean(np.array(plddt_scores["pae"])))
+                                max_pae = plddt_scores["max_pae"].iloc[0]
+                                ptm = plddt_scores["ptm"].iloc[0]
+                                avg_plddt = np.mean(plddt_scores["plddt"])/100
+                            o.update({'model': model})
+                            o.update({'avg_plddt': avg_plddt})
+                            o.update({'avg_pae': avg_pae })
+                            o.update({'max_pae': max_pae})
+                            o.update({'ptm': ptm})
+                            o.update({'TMscore1': tm_score1})
+                            o.update({'TMscore2': tm_score2})
+                            o.update
+                            outputs.append(o)  
+        outputs = pd.DataFrame.from_records(outputs)
+        outputs.to_json(base_output_dir+jobname+f"/bss_res/outputs_bss.json.zip")
+        TMscore1 = outputs['TMscore1']
+        TMscore2 = outputs['TMscore2']                               
+        #### drawing scatter plot of TMscore1 and TMscore2
+        if drawing_lamb ==True:
             fig = go.Figure()
             fig.update_layout(
             template="simple_white",  # Set template to simple_white
@@ -135,144 +133,134 @@ def process_BSS_jobname(jobname, save_fig_dir):
             fig.update_xaxes(range=[0, 1],title_text='TMscore to %s'%ID1)  # Set x-axis limits from 0 to 6
             fig.update_yaxes(range=[0, 1],title_text='TMscore to %s'%ID2)  # Set y-axis limits from 8 to 16
             fig.update_xaxes()  # Set x-axis label
-            fig.write_image(save_fig_dir+"%s_plddt(batch)(fsr).png"%ID, scale=5)
+            fig.write_image(save_fig_dir+"%s_plddt(batch)(fsr).png"%jobname, scale=5)
             plt.cla()
-        outputs = pd.DataFrame.from_records(outputs)
-        outputs.to_json(base_output_dir+jobname+f"/bss_res/outputs_bss_alpha_{alpha_choice}.json.zip")
     except Exception as e:
         error_msg = f"Error processing {jobname}: {str(e)}\n{traceback.format_exc()}"
         print(error_msg)
         
 def process_enhanced_jobname(jobname, save_fig_dir):
     try:
-        n_coreset = 10
+        n_coreset = 5
         os.makedirs(save_fig_dir, exist_ok=True)
-        if jobname in list(metadata_92['jobnames']):
-            meta_info = metadata_92[metadata_92['jobnames'] == jobname].iloc[0]
-            ID1 = meta_info['Fold1']
-            ID2 = meta_info['Fold2']
-            Seq1 = meta_info['Seq1']
-            Seq2 = meta_info['Seq2']
-            fsr_seq = meta_info["Sequence of fold-switching region"]
-            sequence = meta_info['sequences']
-            TMscores_fsr = np.load(f"/n/home13/yongkai/Yongkai/Alphafold2/SS_AF2/metadata/{jobname}/TMscores_fsr.npy")
-            if alpha_choice == "adaptive":
-                alpha_indice = np.argmin(TMscores_fsr)
-            else:
-                alpha_indice = alpha_choice
-            TMscore12 = TMscores_fsr[alpha_indice]
-            TMscore1 = []
-            TMscore2 = []
-            outputs=[]
-            for ID in [jobname]:
-                fsr_seq_extend = extend_fsr_seq(fsr_seq,sequence,int(len(fsr_seq)*ALPHA_VALUES[alpha_indice]))
-                ID1_dir = true_pdb_path+ID1[0:4]+"_"+ID1[4]+".pdb"
-                ID2_dir = true_pdb_path+ID2[0:4]+"_"+ID2[4]+".pdb"
-                for iter in [1,2]:
-                    save_dir = base_output_dir+f"/{ID}/enhanced_iter{iter}_res"
-                    ### with coevol two way
-                    for model in range(1,6):
-                        pdb_path = save_dir+"/pdb_ss_colab/model_%d/"%model
-                        pdb_files = {}
-                        for ii in range(n_coreset):
-                            for jj in range(n_coreset):
-                                for set_size in ["020","100"]:
-                                    o = {}
-                                    pattern = f"ss_MRF_{ii}_2_MRF_{jj}_size_{set_size}_relaxed*model_{model}*.pdb"
-                                    score_file_pattern = f"ss_MRF_{ii}_2_MRF_{jj}_size_{set_size}_*model_{model}*.json"
-                                    pdb_files = glob.glob(os.path.join(pdb_path, pattern))
-                                    if len(pdb_files)>0:
-                                        tm_score1 = compute_fsr_tmscore(ID1_dir, pdb_files[0],fsr_seq_extend )
-                                        tm_score2 = compute_fsr_tmscore(ID2_dir, pdb_files[0],fsr_seq_extend )
-                                        score_file = glob.glob(os.path.join(pdb_path, score_file_pattern))[0]
-                                        pdb_file = pdb_files[0]
-                                        TMscore1.append(tm_score1)
-                                        TMscore2.append(tm_score2)
-                                        with open(score_file,"r") as f:
-                                            plddt_scores = pd.read_json(f)
-                                        avg_plddt = np.mean(plddt_scores["plddt"])/100
-                                        o.update({'msa_path': f"{save_dir}/msa_ss/model_{model}/ss_MRF_{ii}_2_MRF_{jj}_size_{set_size}.a3m"})
-                                        o.update({'pdb_path': pdb_file})
-                                        o.update({'score_path': score_file})
-                                        o.update({'model': model})
-                                        o.update({'avg_plddt': avg_plddt})
-                                        o.update({'avg_pae': np.mean(np.mean(np.array(plddt_scores["pae"])))})
-                                        o.update({'max_pae': plddt_scores["max_pae"].iloc[0]})
-                                        o.update({'ptm': plddt_scores["ptm"].iloc[0]})
-                                        o.update({'TMscore1': tm_score1})
-                                        o.update({'TMscore2': tm_score2})
-                                        o.update({'MSA_ID': ID})
-                                        o.update
-                                        outputs.append(o)
-                fig = go.Figure()
-                fig.update_layout(
-                template="simple_white",  # Set template to simple_white
-                width=550,  # Set width of the figure
-                height=500,  # Set height of the figure
-                showlegend=True)
-                fig.add_trace(go.Scatter(
-                        x=TMscore1, y=TMscore2,
-                        mode='markers',
-                        marker=dict(color="#FF0000", size=4,opacity=0.5) ,#,
-                        name="Enhanced sampling(%d predicts)"%len(TMscore1)
-                ))
-                fig.update_xaxes(range=[0, 1],title_text='TMscore to %s'%ID1)  # Set x-axis limits from 0 to 6
-                fig.update_yaxes(range=[0, 1],title_text='TMscore to %s'%ID2)  # Set y-axis limits from 8 to 16
-                fig.update_xaxes()  # Set x-axis label
-                fig.write_image(save_fig_dir+"%s_plddt(batch)(fsr_extend)_coevol_2way_iter%d.png"%(ID,iter), scale=5)
-                plt.cla()
-            TMscores = np.array([TMscore1,TMscore2])
-            # Combine dataframes
-            outputs_bss = pd.read_json(f"{base_output_dir}{jobname}/bss_res/outputs_bss_alpha_{alpha_choice}.json.zip")
-            TMscores_bss = np.array([outputs_bss['TMscore1'],outputs_bss['TMscore2']])
-            TMscores_combine = np.concatenate((TMscores_bss.T,TMscores.T))
-            fig = go.Figure()
-            fig.update_layout(
-            template="simple_white",  # Set template to simple_white
-            width=550,  # Set width of the figure
-            height=500,  # Set height of the figure
-            showlegend=True)
-            fig.add_trace(go.Scatter(
-            x=np.arange(20)/20, 
-            y=np.arange(20)/20,
+        meta_info = metadata_92[metadata_92['jobnames'] == jobname].iloc[0]
+        ID1 = meta_info['Fold1']
+        ID2 = meta_info['Fold2']
+        Seq1 = meta_info['Seq1']
+        Seq2 = meta_info['Seq2']
+        ID1_dir = true_pdb_path+ID1[0:4]+"_"+ID1[4]+".pdb"
+        ID2_dir = true_pdb_path+ID2[0:4]+"_"+ID2[4]+".pdb"
+        fsr_seq = meta_info["Sequence of fold-switching region"]
+        sequence = meta_info['sequences']
+        fsr_seq_extend = extend_fsr_seq(fsr_seq,sequence,len(fsr_seq))
+        TMscore12 = compute_fsr_tmscore(ID1_dir, ID2_dir,fsr_seq_extend )
+        outputs=[]
+        for iter in [1,2]:
+            save_dir = base_output_dir+f"/{jobname}/enhanced_iter{iter}_res"
+            ### with coevol two way
+            for model in range(1,6):
+                pdb_path = save_dir+"/pdb_ss_colab/model_%d/"%model
+                pdb_files = {}
+                for ii in range(n_coreset):
+                    for jj in range(n_coreset):
+                        for set_size in ["020","100"]:
+                            o = {}
+                            pattern = f"ss_MRF_{ii}_2_MRF_{jj}_size_{set_size}_relaxed*model_{model}*.pdb"
+                            score_file_pattern = f"ss_MRF_{ii}_2_MRF_{jj}_size_{set_size}_*model_{model}*.json"
+                            pdb_files = glob.glob(os.path.join(pdb_path, pattern))
+                            if len(pdb_files)>0:
+                                tm_score1 = compute_fsr_tmscore(ID1_dir, pdb_files[0],fsr_seq_extend )
+                                tm_score2 = compute_fsr_tmscore(ID2_dir, pdb_files[0],fsr_seq_extend )
+                                score_file = glob.glob(os.path.join(pdb_path, score_file_pattern))[0]
+                                pdb_file = pdb_files[0]
+                                TMscore1.append(tm_score1)
+                                TMscore2.append(tm_score2)
+                                with open(score_file,"r") as f:
+                                    plddt_scores = pd.read_json(f)
+                                avg_plddt = np.mean(plddt_scores["plddt"])/100
+                                o.update({'msa_path': f"{save_dir}/msa_ss/model_{model}/ss_MRF_{ii}_2_MRF_{jj}_size_{set_size}.a3m"})
+                                o.update({'pdb_path': pdb_file})
+                                o.update({'score_path': score_file})
+                                o.update({'model': model})
+                                o.update({'avg_plddt': avg_plddt})
+                                o.update({'avg_pae': np.mean(np.mean(np.array(plddt_scores["pae"])))})
+                                o.update({'max_pae': plddt_scores["max_pae"].iloc[0]})
+                                o.update({'ptm': plddt_scores["ptm"].iloc[0]})
+                                o.update({'TMscore1': tm_score1})
+                                o.update({'TMscore2': tm_score2})
+                                o.update
+                                outputs.append(o)
+        outputs = pd.DataFrame.from_records(outputs)
+        outputs.to_json(base_output_dir+jobname+f"/outputs_enhanced.json.zip")
+
+        fig = go.Figure()
+        fig.update_layout(
+        template="simple_white",  # Set template to simple_white
+        width=550,  # Set width of the figure
+        height=500,  # Set height of the figure
+        showlegend=True)
+        fig.add_trace(go.Scatter(
+                x=TMscore1, y=TMscore2,
+                mode='markers',
+                marker=dict(color="#FF0000", size=4,opacity=0.5) ,#,
+                name="Enhanced sampling(%d predicts)"%len(TMscore1)
+        ))
+        fig.update_xaxes(range=[0, 1],title_text='TMscore to %s'%ID1)  # Set x-axis limits from 0 to 6
+        fig.update_yaxes(range=[0, 1],title_text='TMscore to %s'%ID2)  # Set y-axis limits from 8 to 16
+        fig.update_xaxes()  # Set x-axis label
+        fig.write_image(save_fig_dir+"%s_plddt(batch)(fsr_extend)_coevol_2way_iter%d.png"%(ID,iter), scale=5)
+        plt.cla()
+            
+        TMscores = np.array([TMscore1,TMscore2])
+        # Combine dataframes
+        outputs_bss = pd.read_json(f"{base_output_dir}{jobname}/bss_res/outputs_bss_alpha_{alpha_choice}.json.zip")
+        TMscores_bss = np.array([outputs_bss['TMscore1'],outputs_bss['TMscore2']])
+        TMscores_combine = np.concatenate((TMscores_bss.T,TMscores.T))
+        fig = go.Figure()
+        fig.update_layout(
+        template="simple_white",  # Set template to simple_white
+        width=550,  # Set width of the figure
+        height=500,  # Set height of the figure
+        showlegend=True)
+        fig.add_trace(go.Scatter(
+        x=np.arange(20)/20, 
+        y=np.arange(20)/20,
+        mode='lines',
+        line=dict(color='black', dash='dash'),  # Customize line color and style
+        showlegend=False  # Name for the line trace
+        ))
+        fig.add_trace(go.Scatter(
+                x=TMscores_bss[0,:], y=TMscores_bss[1,:],
+                mode='markers',
+                marker=dict(color="#377EB8", size=5,opacity=0.5) ,#,
+                name="SMICE_SeqSamp"
+        ))
+        fig.add_trace(go.Scatter(
+                x=TMscores[0,:], y=TMscores[1,:],
+                mode='markers',
+                marker=dict(color="#E41A1C" , size=5,opacity=0.5) ,#,
+                name="SMICE_enhanced"
+        ))
+        fig.add_trace(go.Scatter(
+            x=np.ones(100)*TMscore12, 
+            y=np.arange(100)/100*TMscore12,
             mode='lines',
-            line=dict(color='black', dash='dash'),  # Customize line color and style
+            line=dict(color='black'),  # Customize line color and style
             showlegend=False  # Name for the line trace
-            ))
-            fig.add_trace(go.Scatter(
-                    x=TMscores_bss[0,:], y=TMscores_bss[1,:],
-                    mode='markers',
-                    marker=dict(color="#377EB8", size=5,opacity=0.5) ,#,
-                    name="SMICE_SeqSamp"
-            ))
-            fig.add_trace(go.Scatter(
-                    x=TMscores[0,:], y=TMscores[1,:],
-                    mode='markers',
-                    marker=dict(color="#E41A1C" , size=5,opacity=0.5) ,#,
-                    name="SMICE_enhanced"
-            ))
-            fig.add_trace(go.Scatter(
-                x=np.ones(100)*TMscore12, 
-                y=np.arange(100)/100*TMscore12,
-                mode='lines',
-                line=dict(color='black'),  # Customize line color and style
-                showlegend=False  # Name for the line trace
-            ))
-            fig.add_trace(go.Scatter(
-                x=np.arange(100)/100*TMscore12, 
-                y=np.ones(100)*TMscore12,
-                mode='lines',
-                line=dict(color='black'),  # Customize line color and style
-                showlegend=False  # Name for the line trace
-            ))
-            fig.update_xaxes(range=[0, 1],title_text='TMscore to %s'%ID1)  # Set x-axis limits from 0 to 6
-            fig.update_yaxes(range=[0, 1],title_text='TMscore to %s'%ID2)  # Set y-axis limits from 8 to 16
-            fig.update_xaxes()  # Set x-axis label
-            os.makedirs(base_result_dir+"TMscore_fig_combine/", exist_ok=True)
-            fig.write_image(base_result_dir+"TMscore_fig_combine/%s_plddt(batch)(fsr_extend)_combine_seperate_color.png"%jobname, scale=5)
-            plt.cla()
-            outputs = pd.DataFrame.from_records(outputs)
-            outputs.to_json(base_output_dir+jobname+f"/outputs_enhanced_alpha_{alpha_choice}.json.zip")
+        ))
+        fig.add_trace(go.Scatter(
+            x=np.arange(100)/100*TMscore12, 
+            y=np.ones(100)*TMscore12,
+            mode='lines',
+            line=dict(color='black'),  # Customize line color and style
+            showlegend=False  # Name for the line trace
+        ))
+        fig.update_xaxes(range=[0, 1],title_text='TMscore to %s'%ID1)  # Set x-axis limits from 0 to 6
+        fig.update_yaxes(range=[0, 1],title_text='TMscore to %s'%ID2)  # Set y-axis limits from 8 to 16
+        fig.update_xaxes()  # Set x-axis label
+        os.makedirs(base_result_dir+"TMscore_fig_combine/", exist_ok=True)
+        fig.write_image(base_result_dir+"TMscore_fig_combine/%s_plddt(batch)(fsr_extend)_combine_seperate_color.png"%jobname, scale=5)
+        plt.cla()
 
     except Exception as e:
         error_msg = f"Error processing {jobname}: {str(e)}\n{traceback.format_exc()}"

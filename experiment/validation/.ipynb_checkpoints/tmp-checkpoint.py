@@ -27,6 +27,8 @@ base_result_dir = config["base_result_dir"]
 jobnames = config["jobnames"]
 true_pdb_path = config["true_pdb_path"]
 
+base_dir_prev = "/n/kou_lab/yongkai/SS_AF2/results_cov75_ss_bayes_updated"
+
 def process_BSS_jobname(jobname):
     try:
         meta_info = metadata_92[metadata_92['jobnames'] == jobname].iloc[0]
