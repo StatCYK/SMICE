@@ -11,12 +11,14 @@ GCC >= 12
 #### python
 conda env create -f SMICE.yml
 
-
 #### HHsuite
+check this link [https://github.com/soedinglab/hh-suite] for installation
 
 #### colabFold
+check this link [https://github.com/sokrypton/ColabFold] for installation
 
 #### Foldseek
+check this link [https://github.com/steineggerlab/foldseek] for installation
 
 ## Dataset
 Upload and unzip MSA_cov75_all.zip to the "dataset" directory
