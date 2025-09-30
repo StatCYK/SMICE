@@ -12,7 +12,7 @@ GCC >= 12
 conda env create -f SMICE.yml
 
 #### HHsuite
-check this link [https://github.com/soedinglab/hh-suite] for installation
+check this link [https://github.com/soedinglab/hh-suite](https://github.com/soedinglab/hh-suite) for installation
 
 #### colabFold
 check this link [https://github.com/sokrypton/ColabFold] for installation
