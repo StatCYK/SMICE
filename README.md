@@ -15,10 +15,10 @@ conda env create -f SMICE.yml
 check this link [https://github.com/soedinglab/hh-suite](https://github.com/soedinglab/hh-suite) for installation
 
 #### colabFold
-check this link [https://github.com/sokrypton/ColabFold] for installation
+check this link [https://github.com/sokrypton/ColabFold](https://github.com/sokrypton/ColabFold) for installation
 
 #### Foldseek
-check this link [https://github.com/steineggerlab/foldseek] for installation
+check this link [https://github.com/steineggerlab/foldseek](https://github.com/steineggerlab/foldseek) for installation
 
 ## Dataset
 Upload and unzip MSA_cov75_all.zip to the "dataset" directory
