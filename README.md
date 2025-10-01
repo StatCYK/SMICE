@@ -25,10 +25,11 @@ check this link [https://github.com/HWaymentSteele/AF_Cluster](https://github.co
 
 
 ## Dataset
-Upload and unzip MSA_cov75_all.zip to the "dataset" directory
+Upload and unzip MSA_cov75_all.zip
 
 unzip pdbs_92.zip
 
+unzip PDB_annotations.txt.zip
 ## Run Experiment on benchmark foldswitching proteins
 `cd bash/benchmark_exp`
 
