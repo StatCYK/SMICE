@@ -9,7 +9,7 @@ cudnn version >=9
 GCC >= 12
 
 #### python
-conda env create -f SMICE.yml
+`conda env create -f SMICE.yml`
 
 #### HHsuite
 check this link [https://github.com/soedinglab/hh-suite](https://github.com/soedinglab/hh-suite) for installation
