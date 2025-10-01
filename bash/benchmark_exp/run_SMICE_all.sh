@@ -3,8 +3,7 @@
 # Define the list of jobnames
 jobnames=($(jq -r '.jobnames[]' ../../config/config_SMICE_benchmark.json))
 
-# Maximum number of batch jobs to run in parallel (each handles 1 sequence)
-MAX_JOBS=100
+
 CHUNK_SIZE=1
 
 # Split jobnames into chunks and submit
