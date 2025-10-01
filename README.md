@@ -57,8 +57,11 @@ Check the `./config/README.md` for the details of the configuration file
 `python all_calculate_TMscores.py`
 
 ### compare against AF-Cluster and Random Sampling
+The TMscore results of AF-Cluster and Random Sampling were stored in `AFclust_random_res.zip`.
 
-Compare the TMscores of the top predictions
+`unzip AFclust_random_res.zip`
+
+Compare the TMscores of the top predictions.
 
 `python compare_TopPred.py` 
 
@@ -69,6 +72,7 @@ Compare the overall prediction accuracy of the prediction set
 ## Analysis ##
 
 Analyze the confidence metric against the TMscores
+
 `cd experiment/analysis`
 
 `python confidence_metric_analysis.py`
