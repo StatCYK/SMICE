@@ -20,19 +20,15 @@ with open('../config/config_SMICE_benchmark.json', 'r') as f:
     config = json.load(f)
 
 
-jobnames = ["8e6yA","7kysA"]# pdbID+chainID
+jobnames = config["jobnames"]
+base_dir = config["base_dir"]
+base_output_dir = config["base_output_dir"]
+base_result_dir = config["base_result_dir"]
+pdb_seq_file = config["pdb_seq_file"]
+MSA_saved_basedir = config["MSA_saved_basedir"]
+cov = 75
+MSA_saved_dir = f"{MSA_saved_basedir}{jobname}"
 
-def find_displacements_by_indice(pdb_file1, pdb_file2, indices):
-    # Load the PDB files as trajectories
-    traj1 = (md.load(pdb_file1)).atom_slice(indices)
-    traj2 = md.load(pdb_file2)
-    # Find indices of matching atoms
-    indices1, indices2 = find_matching_atoms(traj1, traj2)
-    # Superpose traj2 onto traj1 using the matching atoms
-    traj2.superpose(traj1, atom_indices=indices2, ref_atom_indices=indices1)
-    # Calculate distances for the matching atoms in the first frame
-    distances = 10 * np.linalg.norm(traj1.xyz[0, indices1] - traj2.xyz[0, indices2], axis=1)
-    return np.mean(distances)
 
 def download_pdb_chain(pdb_id, chain_id, file_path):
     """
@@ -113,7 +109,6 @@ def run_hhfilter(input, output, id=90, qid=10):
 def process_jobname(jobname, cov=75):
     try:
         copies = 1
-        pdb_seq_file = "/n/kou_lab/yongkai/pdb_annotations.txt"
         sequence = get_sequence_by_pdb_id(pdb_seq_file,jobname[0:4]+"_"+jobname[4])
         print(sequence)
         # MSA options
@@ -159,8 +154,7 @@ def process_jobname(jobname, cov=75):
                       "template_mode":template_mode,
                       "propagate_to_copies":propagate_to_copies}
         
-        save_dir = f"/n/kou_lab/yongkai/SS_AF2/MSA_cov{cov}_all/{jobname}"
-        #if not os.path.exists(save_dir+"/msa/msa.npy"):
+        save_dir = f"{MSA_saved_basedir}{jobname}"
         msa, deletion_matrix = predict.get_msa(u_sequences, save_dir,
             mode=pair_mode,
             cov=cov, id=id, qid=qid, max_msa=4096,
