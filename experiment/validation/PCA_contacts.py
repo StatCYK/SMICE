@@ -217,7 +217,7 @@ def process_jobname_and_plot(jobname):
     plt.close()
 
 def main():
-    jobnames = ["2c1uC"]#["3jv6A"]  # ["1xntA","4wsgC"]
+    jobnames = ["3jv6A"]
     try:
         num_processes = multiprocessing.cpu_count() - 1  # Leave one core free
         with multiprocessing.Pool(processes=num_processes) as pool:
