@@ -44,8 +44,6 @@ base_result_dir = config["base_result_dir"]
 jobnames = config["jobnames"]
 true_pdb_path = config["true_pdb_path"]
 
-base_output_dir = "/n/kou_lab/yongkai/SS_AF2/results_cov75_ss_bayes_updated/"
-
 def process_jobname_and_plot(jobname):
     # Load SMICE data
     outputs_bss = pd.read_json(f"{base_output_dir}{jobname}/bss_res/outputs_bss_alpha_{alpha_choice}.json.zip")
