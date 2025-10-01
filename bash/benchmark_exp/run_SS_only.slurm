@@ -13,6 +13,7 @@
 
 base_dir=$(jq -r '.base_dir' ../../config/config_SMICE_benchmark.json)
 base_output_dir=$(jq -r '.base_output_dir' ../../config/config_SMICE_benchmark.json)
+hhsuite_dir=$(jq -r '.hhsuite_dir' ../../config/config_SMICE_benchmark.json)
 
 # Load required modules and set paths
 cd ../../src
@@ -21,7 +22,7 @@ module load python/3.10.12-fasrc01
 module load cuda/12.4.1-fasrc01
 module load cudnn/9.1.1.17_cuda12-fasrc01
 export PATH=$CONDA_PREFIX/bin:$PATH
-export PATH="/n/home13/yongkai/hh-suite/build/bin:/n/home13/yongkai/hh-suite/build/scripts:$PATH"
+export PATH="${hhsuite_dir}build/bin:${hhsuite_dir}build/scripts:$PATH"
 mamba activate SMICE
 
 # Initialize variables
