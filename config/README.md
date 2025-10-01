@@ -1,3 +1,5 @@
+The config_SMICE_benchmark.json storing a dictionary as described below
+
 | key               |  Default   |         Description                                                                                                                  |
 |---------------------|-------------|----------------------------------------------------------------------------------------------------------------------------------------|
 | base_dir                  |  `./SMICE/` |          The directory of the SMICE folder                     |
