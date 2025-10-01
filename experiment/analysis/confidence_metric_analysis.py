@@ -16,12 +16,15 @@ import plotly.graph_objects as go
 import zipfile
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
+os.chdir("../../src/")
+sys.path.insert(0, os.getcwd())  
 
 with open('../config/config_SMICE_benchmark.json', 'r') as f:
     config = json.load(f)
 
 metadata_92 = pd.read_csv(config["meta_path"])
 base_output_dir = config["base_output_dir"]
+base_TMscores_output_dir = config["base_TMscores_output_dir"]
 base_result_dir = config["base_result_dir"]
 jobnames = config["jobnames"]
 true_pdb_path = config["true_pdb_path"]
@@ -103,13 +106,14 @@ def plot_confidence_vs_tmscore(jobname, outputs_SMICE, save_dir):
         print(f"Error plotting for {jobname}: {str(e)}")
         
 
-def plot_overlay_scatter_all_jobnames(jobnames, base_output_dir, save_dir, point_size=5, alpha=0.5):
+def plot_overlay_scatter_all_jobnames(jobnames, base_output_dir, base_TMscores_output_dir, save_dir, point_size=5, alpha=0.5):
     """
     Create overlay scatter plots for all jobnames for each metric.
     
     Args:
         jobnames (list): List of jobnames to include in the plots
         base_output_dir (str): Base directory where jobname results are stored
+        base_TMscores_output_dir (str): Base directory where TMscores results are stored
         save_dir (str): Directory to save the output plots
         point_size (int): Base size for scatter points
         alpha (float): Transparency level for points (0-1)
@@ -123,7 +127,7 @@ def plot_overlay_scatter_all_jobnames(jobnames, base_output_dir, save_dir, point
         
         # Load data for all jobnames
         for jobname in jobnames:
-            combined_path = f"{base_output_dir}{jobname}/outputs_SMICE.json.zip"
+            combined_path = f"{base_TMscores_output_dir}{jobname}/outputs_SMICE_TMscores.json.zip"
             if os.path.exists(combined_path):
                 try:
                     df = pd.read_json(combined_path)
@@ -255,7 +259,7 @@ def plot_summary_results(all_results, save_dir):
 def process_jobname_with_confidence(jobname, save_fig_dir, cov):
     """Process jobname including confidence metric analysis"""
     try:
-        outputs_SMICE = pd.read_json(f"{base_output_dir}{jobname}/outputs_SMICE.json.zip")
+        outputs_SMICE = pd.read_json(f"{base_TMscores_output_dir}{jobname}/outputs_SMICE_TMscores.json.zip")
         if outputs_SMICE is not None:
             # Create directory for confidence plots
             confidence_dir = os.path.join(save_fig_dir, "confidence_plots")
@@ -269,7 +273,7 @@ def process_jobname_with_confidence(jobname, save_fig_dir, cov):
 
 def calculate_filter_ratios(jobname):
     try:
-        outputs_SMICE = pd.read_json(f"{base_output_dir}{jobname}/outputs_SMICE.json.zip")
+        outputs_SMICE = pd.read_json(f"{base_TMscores_output_dir}{jobname}/outputs_SMICE_TMscores.json.zip")
         filtered_data = outputs_SMICE[outputs_SMICE['avg_plddt'] > 0.5]
         # Calculate ratio of filtered to combined data
         ratio = len(filtered_data) / len(outputs_SMICE)
@@ -302,7 +306,7 @@ def main():
         os.makedirs(summary_dir, exist_ok=True)
         print("start plotting summary figure")
         plot_summary_results(all_results, summary_dir)
-        plot_overlay_scatter_all_jobnames(jobnames_validate, base_output_dir, summary_dir, point_size=10, alpha=0.3)
+        plot_overlay_scatter_all_jobnames(jobnames_validate, base_output_dir, base_TMscores_output_dir, summary_dir, point_size=10, alpha=0.3)
         ratios = pool.map(partial(calculate_filter_ratios), jobnames_validate)
         plt.figure(figsize=(10, 6))
         plt.hist(ratios, bins=30, edgecolor='black')
