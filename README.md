@@ -25,7 +25,7 @@ check this link [https://github.com/HWaymentSteele/AF_Cluster](https://github.co
 
 
 ## Dataset
-Upload and unzip [MSA_cov75_all.zip](https://drive.google.com/file/d/1sTRjkz6UXTvQKDi33I8Xx3jcCd0O8a1S/view?usp=drive_link)
+Upload and unzip [MSA_cov75_all.zip](https://drive.google.com/file/d/1sTRjkz6UXTvQKDi33I8Xx3jcCd0O8a1S/view?usp=drive_link) to the main directory
 
 unzip pdbs_92.zip
 
