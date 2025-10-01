@@ -30,8 +30,6 @@ base_TMscores_output_dir = config['base_TMscores_output_dir']
 
 calculate_TMscore = False #if TMscores are not computed,change this to True
 
-jobnames = ["3jv6A"]
-
 
 def process_jobname(jobname, save_fig_dir,seperate_color=False):
     """
