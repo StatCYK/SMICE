@@ -54,7 +54,7 @@ mrf_one = GREMLIN(msa_df,opt_iter=100)
 
 N = len(IDs)
 if N > 300:
-    samp_sizes = [20]#[20,100]
+    samp_sizes = [20,100]
 else:
     samp_sizes = [20]
 
