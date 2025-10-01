@@ -1461,7 +1461,7 @@ def seq_sample_all_bayes_weight(msa,prob_init,prob_weight, ntries = 10,lamb = 2,
     N = len(msa)
     if N<100:
         min_sample_size = 10
-        max_sample_size = 20
+        max_sample_size = 50
     elif N<500:
         min_sample_size = 10
         max_sample_size = 100
@@ -1489,7 +1489,7 @@ def seq_sample_bayes_weight(msa,prob_init,prob_weight,seed=123,lamb = 2,tau = 10
     random.shuffle(shuf_idx) 
     shuf_msa = [shuf_msa[idx] for idx in shuf_idx]# randomly permute MSA
     samp_msa = []
-    cur_seq_prob = prob_init#seq_prob(samp_msa)
+    cur_seq_prob = prob_init
     cur_entropy_vec,delta_p_exp,delta_p_sd_inv = seq_entropy_exp_sd(cur_seq_prob)
     M = abs(np.sum(abs(max_to_onehot(cur_seq_prob)-cur_seq_prob), 1) )
     for seq in shuf_msa:
@@ -1591,10 +1591,9 @@ def run_BSS(msa, a3m_path, jobname, save_dir,lamb_list = [0,1,2,3]):
             save_msa_ss_dir = save_dir+"/msa_ss_bayes_lamb%d_neighbors%d/"%(lamb,n_neighbors)
             os.makedirs(save_fig_ss_dir, exist_ok=True)
             os.makedirs(save_msa_ss_dir, exist_ok=True)
-            #if not os.path.exists(save_msa_ss_dir+"/msa_sample.pkl"):
             ### extract coresets for the prior's the concentration parameters
             msa_samples = []
-            n_tries = 2
+            n_tries = 3
             averaged_probs_mat = averaged_probs.reshape(N,L,22)
             prob_init_list = [averaged_probs_mat[0]]
             prob_init_list.extend([averaged_probs_mat[medoid_indices[c_ind]] for c_ind in range(n_coreset)])# prior's concentration parameters
