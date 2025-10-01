@@ -39,9 +39,22 @@ Check the `./config/README.md` for the details of the configuration file
 
 `./run_SMICE_all.sh`
 
-## Analysis ##
+## Validation ##
 
 
-### Calculate TMscores and Visualization
-cd code
+### Calculate TMscores and plot the scattering plots
+`cd experiment/validation`
 
+`conda activate SMICE`
+
+`python all_calculate_TMscores.py`
+
+### compare against AF-Cluster and Random Sampling
+
+Compare the TMscores of the top predictions
+
+`python compare_TopPred.py` 
+
+Compare the overall prediction accuracy of the prediction set
+
+`python compare_OverallPred.py` 
