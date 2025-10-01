@@ -29,7 +29,7 @@ Upload and unzip MSA_cov75_all.zip to the "dataset" directory
 
 unzip pdbs_92.zip
 
-## Run Experiment on 92 foldswitching proteins
+## Run Experiment on benchmark foldswitching proteins
 ### Setup configuration ###
 Change the paths in the `./config/config_SMICE_benchmark.json`
 
