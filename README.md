@@ -8,7 +8,7 @@ cudnn version >=9
 
 GCC >= 12
 
-#### python
+#### python(python-3.10.12)
 `conda env create -f SMICE.yml`
 
 #### HHsuite
