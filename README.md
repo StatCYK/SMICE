@@ -33,10 +33,13 @@ unzip pdbs_92.zip
 `cd bash/benchmark_exp`
 
 `chmod +x *.sh`
+
+check  `bash/benchmark_exp/README.md` for updating all `*.slurm`files
 ### Setup configuration ###
 Change the paths in the `./config/config_SMICE_benchmark.json`
 
 Check the `./config/README.md` for the details of the configuration file
+
 ### Run demo example ###
 `./run_SMICE_exmp.sh`
 
