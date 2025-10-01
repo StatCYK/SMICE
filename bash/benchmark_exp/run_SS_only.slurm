@@ -22,7 +22,7 @@ module load cuda/12.4.1-fasrc01
 module load cudnn/9.1.1.17_cuda12-fasrc01
 export PATH=$CONDA_PREFIX/bin:$PATH
 export PATH="/n/home13/yongkai/hh-suite/build/bin:/n/home13/yongkai/hh-suite/build/scripts:$PATH"
-mamba activate SS_AF2
+mamba activate SMICE
 
 # Initialize variables
 jobnames=("$@")
