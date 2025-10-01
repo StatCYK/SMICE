@@ -27,8 +27,6 @@ base_result_dir = config["base_result_dir"]
 pdb_seq_file = config["pdb_seq_file"]
 MSA_saved_basedir = config["MSA_saved_basedir"]
 cov = 75
-MSA_saved_dir = f"{MSA_saved_basedir}{jobname}"
-
 
 def download_pdb_chain(pdb_id, chain_id, file_path):
     """
