@@ -41,7 +41,6 @@ Check the `./config/README.md` for the details of the configuration file
 
 ## Validation ##
 
-
 ### Calculate TMscores and plot the scattering plots
 `cd experiment/validation`
 
@@ -58,3 +57,10 @@ Compare the TMscores of the top predictions
 Compare the overall prediction accuracy of the prediction set
 
 `python compare_OverallPred.py` 
+
+## Analysis ##
+
+Analyze the confidence metric against the TMscores
+`cd experiment/analysis`
+
+`python confidence_metric_analysis.py`
