@@ -20,7 +20,9 @@ check this link [https://github.com/sokrypton/ColabFold](https://github.com/sokr
 #### Foldseek
 check this link [https://github.com/steineggerlab/foldseek](https://github.com/steineggerlab/foldseek) for installation
 
-#### AFcluster
+#### AFcluster and Random Sampling
+check this link [https://github.com/HWaymentSteele/AF_Cluster](https://github.com/HWaymentSteele/AF_Cluster) for installation and implementation
+
 
 ## Dataset
 Upload and unzip MSA_cov75_all.zip to the "dataset" directory
