@@ -8,6 +8,7 @@ from api import run_mmseqs2
 import matplotlib.pyplot as plt
 import string
 import numpy as np
+from colabdesign.af.contrib import predict
 import pandas as pd
 import pickle
 from multiprocessing import Pool, cpu_count
