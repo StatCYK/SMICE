@@ -42,7 +42,7 @@ format_time() {
 
 # Main processing loop
 for jobname in "${jobnames[@]}"; do
-    # Process each lambda value in parallel
+    python pool_preds.py "$jobname"
     python extract_Rep.py "$jobname"  &
 
     
