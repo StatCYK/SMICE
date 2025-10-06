@@ -9,6 +9,11 @@ cudnn version >=9
 GCC >= 12
 
 #### python(python-3.10.12)
+##### install via mamba(more recommended)
+`mamba env create -f SMICE.yml`
+
+##### or install via conda
+
 `conda env create -f SMICE.yml`
 
 #### HHsuite
