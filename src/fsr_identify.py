@@ -77,11 +77,10 @@ def fsr_identify(jobname):
         meta_info = metadata_92[metadata_92['jobnames'] == jobname].iloc[0]
         sequence = meta_info['sequences']
         fsr_seq = meta_info["Sequence of fold-switching region"]#sequence#
-        contacts = []
         outputs_SMICE = pd.read_json(f"{base_output_dir}{jobname}/outputs_SMICE.json.zip")
         filtered_data = outputs_SMICE[outputs_SMICE['avg_plddt']>0.5]
-        #contacts = [get_contacts(pdb_file) for pdb_file in filtered_data['pdb_path']]
-        #np.save(f"{base_output_dir}{jobname}/contacts.npy",contacts)
+        contacts = np.array([get_contacts(pdb_file) for pdb_file in filtered_data['pdb_path']])
+        np.save(f"{base_output_dir}{jobname}/contacts.npy",contacts)
         contacts = np.load(f"{base_output_dir}{jobname}/contacts.npy")
         contacts_variance = np.var(np.array(contacts), axis=0)
         seq_len = int(np.sqrt(len(contacts_variance)))
