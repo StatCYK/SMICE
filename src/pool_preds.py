@@ -21,10 +21,11 @@ with open('../config/config_SMICE_benchmark.json', 'r') as f:
     config = json.load(f)
 
 
+jobname = sys.argv[1]
 metadata_92 = pd.read_csv(config["meta_path"])
 base_output_dir = config["base_output_dir"]
 base_result_dir = config["base_result_dir"]
-jobnames = config["jobnames"]
+
 true_pdb_path = config["true_pdb_path"]
 
 def process_BSS_jobname(jobname):
@@ -120,20 +121,7 @@ def process_enhanced_jobname(jobname):
         print(error_msg)
         #raise  # Re-raise the exception after logging
 
-def main():
-    try:
-        num_processes = multiprocessing.cpu_count() - 1  # Leave one core free
-        with multiprocessing.Pool(processes=num_processes) as pool:
-            # Process jobnames in parallel
-            pool.map(partial(process_BSS_jobname), jobnames)
-            pool.map(partial(process_enhanced_jobname), jobnames)
-    except Exception as e:
-        print(f"Error in main execution: {str(e)}")
-    finally:
-        # Clean up
-        pool.close()
-        pool.join()
 
-if __name__ == "__main__":
-    main()
-    
+process_BSS_jobname(jobname)
+process_enhanced_jobname(jobname)
+
