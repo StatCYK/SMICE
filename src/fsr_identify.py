@@ -6,9 +6,9 @@ from scipy import stats
 from scipy.spatial.distance import pdist,squareform
 from sklearn.manifold import TSNE
 import pandas as pd
-from util_SMICE import *
 from sklearn.decomposition import PCA
 from sklearn.metrics import pairwise_distances
+from util_SMICE import *
 import sys
 import matplotlib.pyplot as plt
 import pickle
