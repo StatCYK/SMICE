@@ -103,15 +103,15 @@ def process_enhanced_jobname(jobname):
                                 o.update({'ptm': plddt_scores["ptm"].iloc[0]})
                                 o.update
                                 outputs.append(o)
-            # Combine dataframes
-            outputs_bss = pd.read_json(f"{base_output_dir}{jobname}/bss_res/outputs_bss.json.zip")
-            outputs = pd.DataFrame.from_records(outputs)
-            outputs.to_json(base_output_dir+jobname+f"/outputs_enhanced.json.zip")
-            outputs_bss['source'] = "SMICE_SeqSamp"
-            outputs['source'] = "SMICE_enhanced"
-            # Combine dataframes
-            combined_data = pd.concat([outputs_bss,outputs], ignore_index=True)
-            combined_data.to_json(base_output_dir+jobname+f"/outputs_SMICE.json.zip")
+        # Combine dataframes
+        outputs_bss = pd.read_json(f"{base_output_dir}{jobname}/bss_res/outputs_bss.json.zip")
+        outputs = pd.DataFrame.from_records(outputs)
+        outputs.to_json(base_output_dir+jobname+f"/outputs_enhanced.json.zip")
+        outputs_bss['source'] = "SMICE_SeqSamp"
+        outputs['source'] = "SMICE_enhanced"
+        # Combine dataframes
+        combined_data = pd.concat([outputs_bss,outputs], ignore_index=True)
+        combined_data.to_json(base_output_dir+jobname+f"/outputs_SMICE.json.zip")
     except Exception as e:
         error_msg = f"Error processing {jobname}: {str(e)}\n{traceback.format_exc()}"
         print(error_msg)
