@@ -101,8 +101,8 @@ outputs_SMICE = pd.read_json(f"{base_output_dir}{jobname}/outputs_SMICE.json.zip
 filtered_data = outputs_SMICE[outputs_SMICE['avg_plddt']>0.5]
 ### identify the variable region
 fsr_identify_res = fsr_identify(jobname)
-fsr_len = fsr_identify_res['fsr_resi'][1] - fsr_identify_res['fsr_resi'][0]
-start_res,end_res = extend_interval_symmetric(fsr_identify_res['fsr_resi'][0], fsr_identify_res['fsr_resi'][1], 1, len(seqs[0]))
+fsr_len = fsr_identify_res['fsr_pred_resi'][1] - fsr_identify_res['fsr_pred_resi'][0]
+start_res,end_res = extend_interval_symmetric(fsr_identify_res['fsr_pred_resi'][0], fsr_identify_res['fsr_pred_resi'][1], 1, len(seqs[0]))
 filtered_files = list(filtered_data['pdb_path'])
 filtered_plddt = list(filtered_data['avg_plddt'])
 ### greedy algorithm
