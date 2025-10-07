@@ -4,7 +4,7 @@ This repository contains the code to produce the results in the paper "Uncoverin
 
 ## Installation
 
-### Basic requirements
+### Basic requirements(Code was run and tested on LINUX machines.)
 
 * cuda version >=12
 * cudnn version >=9
