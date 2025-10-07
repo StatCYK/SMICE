@@ -1,84 +1,84 @@
 # SMICE
 
-## Set environments and install packages
+This repository contains the code to produce the results in the paper "Uncovering distinct protein conformations using coevolutionary information and AlphaFold" by Yongkai Chen, Samuel W.K. Wong, and S. C. Kou.
 
-cuda version >=12
+## Installation
 
-cudnn version >=9
+### Basic requirements
 
-GCC >= 12
+* cuda version >=12
+* cudnn version >=9
+* GCC >= 12
+* **python-3.10.12**
+ 
+### Create Python environment
+Via mamba (recommended): `mamba env create -f SMICE.yml`
 
-#### python(python-3.10.12)
-##### install via mamba(more recommended)
-`mamba env create -f SMICE.yml`
+or via conda: `conda env create -f SMICE.yml`
 
-##### or install via conda
+### Install external packages
 
-`conda env create -f SMICE.yml`
+* HHsuite: refer to [https://github.com/soedinglab/hh-suite](https://github.com/soedinglab/hh-suite) for installation
 
-#### HHsuite
-check this link [https://github.com/soedinglab/hh-suite](https://github.com/soedinglab/hh-suite) for installation
+* colabFold: refer to [https://github.com/sokrypton/ColabFold](https://github.com/sokrypton/ColabFold) for installing localColabFold
 
-#### colabFold
-check this link [https://github.com/sokrypton/ColabFold](https://github.com/sokrypton/ColabFold) for installing localColabFold
+* Foldseek: refer to [https://github.com/steineggerlab/foldseek](https://github.com/steineggerlab/foldseek) for installation
 
-#### Foldseek
-check this link [https://github.com/steineggerlab/foldseek](https://github.com/steineggerlab/foldseek) for installation
-
-#### AFcluster and Random Sampling
-check this link [https://github.com/HWaymentSteele/AF_Cluster](https://github.com/HWaymentSteele/AF_Cluster) for installation and implementation
-
+* AFcluster and Random Sampling *(optional, only to reproduce results from these methods)*: refer to [https://github.com/HWaymentSteele/AF_Cluster](https://github.com/HWaymentSteele/AF_Cluster) for installation and implementation
 
 ## Dataset
-- Upload and unzip the MSA files [MSA_cov75_all.zip](https://drive.google.com/file/d/1sTRjkz6UXTvQKDi33I8Xx3jcCd0O8a1S/view?usp=drive_link) to the base directory
+- Obtain and unzip the MSA files [MSA_cov75_all.zip](https://drive.google.com/file/d/1sTRjkz6UXTvQKDi33I8Xx3jcCd0O8a1S/view?usp=drive_link) to the base directory
 
-- unzip the pdb files of the true conformations pdbs_92.zip
+- Unzip the pdb files of the true conformations `pdbs_92.zip`
 
-- unzip PDB_annotations.txt.zip
+- Unzip `PDB_annotations.txt.zip`
 
-- unzip AFclust_random_res.zip
-## Run Experiment on benchmark foldswitching proteins
+## Run SMICE on benchmark fold-switching proteins
+
 `cd bash/benchmark_exp`
 
 `chmod +x *.sh`
 
-check  `bash/benchmark_exp/README.md` for updating all `*.slurm`files
+See `bash/benchmark_exp/README.md` for instructions on updating all `*.slurm` files
+
 ### Setup configuration ###
-Change the paths in the `./config/config_SMICE_benchmark.json`
 
-Check the `./config/README.md` for the details of the configuration file
+See `config/README.md` for details of setting up the configuration file
 
-### Run demo example ###
+Set the paths in `config/config_SMICE_benchmark.json` accordingly
+
+
+### Run one demo example ###
 `./run_SMICE_exmp.sh`
 
-### Run all benchmark fold-switching proteins ###
+### Run on all benchmark proteins ###
 `./run_SMICE_all.sh`
 
-## Validation ##
+## Results analysis ##
 
-### Calculate TMscores and plot the scattering plots
+### Calculate TMscores and create scatter plots
 `cd experiment/validation`
 
 `conda activate SMICE`
 
 `python all_calculate_TMscores.py`
 
-### compare against AF-Cluster and Random Sampling
-The TMscore results of AF-Cluster and Random Sampling were stored in `AFclust_random_res.zip`.
+### Compare with AF-Cluster and Random Sampling
+We use the TMscore results of AF-Cluster and Random Sampling as saved in `AFclust_random_res.zip`.
 
 `unzip AFclust_random_res.zip`
 
-Compare the TMscores of the top predictions.
+Compare the TMscores of the top predictions:
 
 `python compare_TopPred.py` 
 
-Compare the overall prediction accuracy of the prediction set
+Compare the overall prediction accuracy of the prediction sets:
 
 `python compare_OverallPred.py` 
 
-## Analysis ##
+### Assess confidence metrics
 
-Analyze the confidence metric against the TMscores
+Analyze relationships between confidence metrics and TMscores:
 
 `cd experiment/analysis`
 
