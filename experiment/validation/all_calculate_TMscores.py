@@ -57,6 +57,7 @@ def process_jobname(jobname, save_fig_dir,seperate_color=False):
             outputs_SMICE = pd.read_json(base_output_dir+jobname+f"/outputs_SMICE.json.zip")
             outputs_SMICE["TMscore1"] = [compute_fsr_tmscore(ID1_dir, pdb_file,fsr_seq_extend ) for pdb_file in list(outputs_SMICE['pdb_path'])]
             outputs_SMICE["TMscore2"] = [compute_fsr_tmscore(ID2_dir, pdb_file,fsr_seq_extend ) for pdb_file in list(outputs_SMICE['pdb_path'])]
+            outputs_SMICE['max_TMscore'] = outputs_SMICE.apply(lambda x: max(x['TMscore1'], x['TMscore2']), axis=1)
             outputs_SMICE.to_json(base_TMscores_output_dir+jobname+f"/outputs_SMICE_TMscores.json.zip")
         else:
             TMscore_dir = base_TMscores_output_dir+jobname+f"/outputs_SMICE_TMscores.json.zip"
