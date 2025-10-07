@@ -40,9 +40,7 @@ else:
     saved_dir = os.path.join(job_base_dir, f"enhanced_iter{iter-1}_res")
     save_dir = os.path.join(job_base_dir, f"enhanced_iter{iter}_res")
 
-meta_info = metadata_92[metadata_92['jobnames'] == jobname].iloc[0]
-sequence = meta_info['sequences']
-fsr_seq = meta_info["Sequence of fold-switching region"]#sequence#
+
 aa_order = {'A': 0, 'R': 1, 'N': 2, 'D': 3, 'C': 4, 'Q': 5, 'E': 6, 'G': 7, 'H': 8, 'I': 9, 'L': 10, 'K': 11, 'M': 12, 'F': 13, 'P': 14, 'S': 15, 'T': 16, 'W': 17, 'Y': 18, 'V': 19, 'X': 20, '-': 20}
 IDs,seqs = load_fasta(os.path.join(MSA_saved_dir, "msa.a3m"))
 seqs =[remove_insertions(seq).upper() for seq in seqs]
