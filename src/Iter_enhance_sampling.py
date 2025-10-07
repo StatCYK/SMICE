@@ -24,7 +24,7 @@ import json
 with open('../config/config_SMICE_benchmark.json', 'r') as f:
     config = json.load(f)
 
-metadata_92 = pd.read_csv(config["meta_path"])
+
 base_dir = config["base_dir"]
 base_output_dir = config["base_output_dir"]
 base_result_dir = config["base_result_dir"]
