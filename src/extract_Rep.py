@@ -34,7 +34,7 @@ MSA_saved_basedir = config["MSA_saved_basedir"]
 cov = 75
 MSA_saved_dir = f"{MSA_saved_basedir}{jobname}"
 PCA_visualization = True
-
+TMscore_visualize = False #whether colored the PCA visualization with TMscore, TMscore to both folds must be computed
 
 def extract_substructure_biopython(pdb_file, output_file, start_res, end_res):
     """
@@ -130,7 +130,7 @@ for model in range(1,6):
 outputs_full = pd.DataFrame.from_records(outputs_full)
 
 TMscore_threshold = 0.85
-cluster_size_threshold = 3
+cluster_size_threshold = 0
 cluster_res = []
 clusters_files = []
 clusters_files.append(outputs_full.nlargest(1, 'avg_plddt')['pdb_path'].iloc[0])
@@ -183,6 +183,23 @@ while len(files_to_cluster) > cluster_size_threshold:
     if len(files_to_cluster)>cluster_size_threshold:
         select_idx +=1
         clusters_files.append(next_cluster_file)
+    # if num_clusters>400:
+    #     ## restart clustering with lower TMscore_threshold
+    #     TMscore_threshold -= 0.2
+    #     cluster_res = []
+    #     clusters_files = []
+    #     clusters_files.append(filtered_data[filtered_data['source'] == 'full'].nlargest(1, 'avg_plddt')['pdb_path'].iloc[0])
+    #     select_idx = 0
+    #     num_clusters = 0
+    #     ## create tmp folder to store files_to_cluster 
+    #     files_to_cluster_Dir = f"{base_output_dir}{jobname}/all_preds/"
+    #     ## delete the whole dir if it exists
+    #     if os.path.exists(files_to_cluster_Dir):
+    #         shutil.rmtree(files_to_cluster_Dir)
+    #     os.makedirs(files_to_cluster_Dir, exist_ok=True)
+    #     files_to_cluster = [f"{i}.pdb" for i in range(len(filtered_files))]
+    #     for source, target in zip(filtered_files, files_to_cluster):
+    #         extract_substructure_biopython(source, os.path.join(files_to_cluster_Dir, target), start_res, end_res)
 cluster_res_df = pd.DataFrame(cluster_res)
 value_counts = cluster_res_df['cluster_file'].value_counts()
 low_freq_elements = value_counts[value_counts < cluster_size_threshold].index.tolist()
@@ -239,19 +256,24 @@ if PCA_visualization:
     TMscores2cluster = np.where(np.isnan(TMscores2cluster), np.nanmean(TMscores2cluster, axis=1, keepdims=True), TMscores2cluster)
     embedding = mdl.fit_transform(TMscores2cluster)
     # Visualization 
-    outputs_SMICE['max_TMscore'] = outputs_SMICE.apply(lambda x: max(x['TMscore1'], x['TMscore2']), axis=1)
     mdl = PCA(n_components=2, random_state=42)
     contacts_SMICE_filtered = np.array([get_contacts(pdb_file) for pdb_file in filtered_data["pdb_path"]])
     contacts_SMICE_cluster = np.array([get_contacts(pdb_file) for pdb_file in cluster_rows["pdb_path"]])
     embedding = mdl.transform(contacts_SMICE_filtered )
     plt.figure(figsize=(7, 6))
-    TM_score_diff = np.sign(filtered_data['TMscore1']-filtered_data['TMscore2'])*filtered_data['max_TMscore']
-    v_abs_max = np.max(np.max(TM_score_diff))
-    sc = plt.scatter(embedding[:, 0], embedding[:, 1], 
-                    c=TM_score_diff, 
-                    cmap='RdYlBu',
-                    vmin=-v_abs_max, vmax=v_abs_max,
-                    alpha=0.6)
+    if TMscore_visualize:
+        outputs_SMICE['max_TMscore'] = outputs_SMICE.apply(lambda x: max(x['TMscore1'], x['TMscore2']), axis=1)
+        TM_score_diff = np.sign(filtered_data['TMscore1']-filtered_data['TMscore2'])*filtered_data['max_TMscore']
+        v_abs_max = np.max(np.max(TM_score_diff))
+        sc = plt.scatter(embedding[:, 0], embedding[:, 1], 
+                        c=TM_score_diff, 
+                        cmap='RdYlBu',
+                        vmin=-v_abs_max, vmax=v_abs_max,
+                        alpha=0.6)
+    else:
+        sc = plt.scatter(embedding[:, 0], embedding[:, 1], 
+                        c="blue", 
+                        alpha=0.6)
     plt.scatter(embedding[cluster_indices, 0], embedding[cluster_indices, 1], 
                marker='*', s=200, c='black', 
                edgecolors='white', linewidths=0.5,
