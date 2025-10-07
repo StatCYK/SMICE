@@ -27,14 +27,14 @@ jobname = sys.argv[1]
 with open('../config/config_SMICE_benchmark.json', 'r') as f:
     config = json.load(f)
 
-metadata_92 = pd.read_csv(config["meta_path"])
+
 base_output_dir = config["base_output_dir"]
 base_result_dir = config["base_result_dir"]
 MSA_saved_basedir = config["MSA_saved_basedir"]
 cov = 75
 MSA_saved_dir = f"{MSA_saved_basedir}{jobname}"
-PCA_visualization = False
-alpha_choice = 10
+PCA_visualization = True
+
 
 def extract_substructure_biopython(pdb_file, output_file, start_res, end_res):
     """
@@ -94,16 +94,15 @@ def save_cluster_centers_pdbs(jobname, cluster_files, cluster_sizes):
 
 
 MSA_saved_dir = f"{MSA_saved_basedir}{jobname}/"
-meta_info = metadata_92[metadata_92['jobnames'] == jobname].iloc[0]
-sequence = meta_info['sequences']
-fsr_seq = meta_info["Sequence of fold-switching region"]
+
+IDs,seqs = load_fasta(os.path.join(MSA_saved_dir, "msa.a3m"))
 outputs_SMICE = pd.read_json(f"{base_output_dir}{jobname}/outputs_SMICE.json.zip")
 #
 filtered_data = outputs_SMICE[outputs_SMICE['avg_plddt']>0.5]
 ### identify the variable region
 fsr_identify_res = fsr_identify(jobname)
 fsr_len = fsr_identify_res['fsr_resi'][1] - fsr_identify_res['fsr_resi'][0]
-start_res,end_res = extend_interval_symmetric(fsr_identify_res['fsr_resi'][0], fsr_identify_res['fsr_resi'][1], 1, len(sequence))
+start_res,end_res = extend_interval_symmetric(fsr_identify_res['fsr_resi'][0], fsr_identify_res['fsr_resi'][1], 1, len(seqs[0]))
 filtered_files = list(filtered_data['pdb_path'])
 filtered_plddt = list(filtered_data['avg_plddt'])
 ### greedy algorithm
@@ -184,23 +183,6 @@ while len(files_to_cluster) > cluster_size_threshold:
     if len(files_to_cluster)>cluster_size_threshold:
         select_idx +=1
         clusters_files.append(next_cluster_file)
-    if num_clusters>400:
-        ## restart clustering with lower TMscore_threshold
-        TMscore_threshold -= 0.2
-        cluster_res = []
-        clusters_files = []
-        clusters_files.append(filtered_data[filtered_data['source'] == 'full'].nlargest(1, 'avg_plddt')['pdb_path'].iloc[0])
-        select_idx = 0
-        num_clusters = 0
-        ## create tmp folder to store files_to_cluster 
-        files_to_cluster_Dir = f"{base_output_dir}{jobname}/all_preds/"
-        ## delete the whole dir if it exists
-        if os.path.exists(files_to_cluster_Dir):
-            shutil.rmtree(files_to_cluster_Dir)
-        os.makedirs(files_to_cluster_Dir, exist_ok=True)
-        files_to_cluster = [f"{i}.pdb" for i in range(len(filtered_files))]
-        for source, target in zip(filtered_files, files_to_cluster):
-            extract_substructure_biopython(source, os.path.join(files_to_cluster_Dir, target), start_res, end_res)
 cluster_res_df = pd.DataFrame(cluster_res)
 value_counts = cluster_res_df['cluster_file'].value_counts()
 low_freq_elements = value_counts[value_counts < cluster_size_threshold].index.tolist()
@@ -258,10 +240,7 @@ if PCA_visualization:
     embedding = mdl.fit_transform(TMscores2cluster)
     # Visualization 
     outputs_SMICE['max_TMscore'] = outputs_SMICE.apply(lambda x: max(x['TMscore1'], x['TMscore2']), axis=1)
-    contacts_SMICE = np.load(f"{base_output_dir}{jobname}/contacts.npy")
-    all_contacts = np.load(f"{base_output_dir}{jobname}/contacts.npy")
     mdl = PCA(n_components=2, random_state=42)
-    embedding_all = mdl.fit_transform(all_contacts)
     contacts_SMICE_filtered = np.array([get_contacts(pdb_file) for pdb_file in filtered_data["pdb_path"]])
     contacts_SMICE_cluster = np.array([get_contacts(pdb_file) for pdb_file in cluster_rows["pdb_path"]])
     embedding = mdl.transform(contacts_SMICE_filtered )
