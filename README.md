@@ -20,7 +20,7 @@ GCC >= 12
 check this link [https://github.com/soedinglab/hh-suite](https://github.com/soedinglab/hh-suite) for installation
 
 #### colabFold
-check this link [https://github.com/sokrypton/ColabFold](https://github.com/sokrypton/ColabFold) for installation
+check this link [https://github.com/sokrypton/ColabFold](https://github.com/sokrypton/ColabFold) for installing localColabFold
 
 #### Foldseek
 check this link [https://github.com/steineggerlab/foldseek](https://github.com/steineggerlab/foldseek) for installation
