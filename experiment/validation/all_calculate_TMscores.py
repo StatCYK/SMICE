@@ -28,8 +28,7 @@ jobnames = config["jobnames"]
 true_pdb_path = config["true_pdb_path"]
 base_TMscores_output_dir = config['base_TMscores_output_dir']
 
-calculate_TMscore = False #if TMscores are not computed,change this to True
-
+calculate_TMscore = True #if TMscores are computed,change this to False
 
 def process_jobname(jobname, save_fig_dir,seperate_color=False):
     """
@@ -54,6 +53,7 @@ def process_jobname(jobname, save_fig_dir,seperate_color=False):
         TMscore12 = compute_fsr_tmscore(ID1_dir, ID2_dir,fsr_seq_extend )
         ## load pooled preds json file
         if calculate_TMscore == True:
+            os.makedirs(base_TMscores_output_dir+jobname, exist_ok=True)
             outputs_SMICE = pd.read_json(base_output_dir+jobname+f"/outputs_SMICE.json.zip")
             outputs_SMICE["TMscore1"] = [compute_fsr_tmscore(ID1_dir, pdb_file,fsr_seq_extend ) for pdb_file in list(outputs_SMICE['pdb_path'])]
             outputs_SMICE["TMscore2"] = [compute_fsr_tmscore(ID2_dir, pdb_file,fsr_seq_extend ) for pdb_file in list(outputs_SMICE['pdb_path'])]
