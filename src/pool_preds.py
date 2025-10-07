@@ -9,7 +9,6 @@ import pandas as pd
 import os
 import sys
 sys.path.insert(0, os.getcwd())  
-from util_SMICE import *
 import sys
 import pickle
 import traceback
@@ -22,15 +21,14 @@ with open('../config/config_SMICE_benchmark.json', 'r') as f:
 
 
 jobname = sys.argv[1]
-metadata_92 = pd.read_csv(config["meta_path"])
+
 base_output_dir = config["base_output_dir"]
 base_result_dir = config["base_result_dir"]
 
 true_pdb_path = config["true_pdb_path"]
 
-def process_BSS_jobname(jobname):
+def process_BSS_jobname(jobname):R
     try:
-        meta_info = metadata_92[metadata_92['jobnames'] == jobname].iloc[0]
         outputs=[]
         lamb_list = []
         for lamb in [0,1,2,3]:
@@ -75,38 +73,36 @@ def process_BSS_jobname(jobname):
 def process_enhanced_jobname(jobname):
     try:
         n_coreset = 5
-        if jobname in list(metadata_92['jobnames']):
-            meta_info = metadata_92[metadata_92['jobnames'] == jobname].iloc[0]
-            outputs=[]
-            for iter in [1,2]:
-                save_dir = base_output_dir+f"/{jobname}/enhanced_iter{iter}_res"
-                ### with coevol two way
-                for model in range(1,6):
-                    pdb_path = save_dir+"/pdb_ss_colab/model_%d/"%model
-                    pdb_files = {}
-                    for ii in range(n_coreset):
-                        for jj in range(n_coreset):
-                            for set_size in ["020","100"]:
-                                o = {}
-                                pattern = f"ss_MRF_{ii}_2_MRF_{jj}_size_{set_size}_relaxed*model_{model}*.pdb"
-                                score_file_pattern = f"ss_MRF_{ii}_2_MRF_{jj}_size_{set_size}_*model_{model}*.json"
-                                pdb_files = glob.glob(os.path.join(pdb_path, pattern))
-                                if len(pdb_files)>0:
-                                    score_file = glob.glob(os.path.join(pdb_path, score_file_pattern))[0]
-                                    pdb_file = pdb_files[0]
-                                    with open(score_file,"r") as f:
-                                        plddt_scores = pd.read_json(f)
-                                    avg_plddt = np.mean(plddt_scores["plddt"])/100
-                                    o.update({'msa_path': f"{save_dir}/msa_ss/model_{model}/ss_MRF_{ii}_2_MRF_{jj}_size_{set_size}.a3m"})
-                                    o.update({'pdb_path': pdb_file})
-                                    o.update({'score_path': score_file})
-                                    o.update({'model': model})
-                                    o.update({'avg_plddt': avg_plddt})
-                                    o.update({'avg_pae': np.mean(np.mean(np.array(plddt_scores["pae"])))})
-                                    o.update({'max_pae': plddt_scores["max_pae"].iloc[0]})
-                                    o.update({'ptm': plddt_scores["ptm"].iloc[0]})
-                                    o.update
-                                    outputs.append(o)
+        outputs=[]
+        for iter in [1,2]:
+            save_dir = base_output_dir+f"/{jobname}/enhanced_iter{iter}_res"
+            ### with coevol two way
+            for model in range(1,6):
+                pdb_path = save_dir+"/pdb_ss_colab/model_%d/"%model
+                pdb_files = {}
+                for ii in range(n_coreset):
+                    for jj in range(n_coreset):
+                        for set_size in ["020","100"]:
+                            o = {}
+                            pattern = f"ss_MRF_{ii}_2_MRF_{jj}_size_{set_size}_relaxed*model_{model}*.pdb"
+                            score_file_pattern = f"ss_MRF_{ii}_2_MRF_{jj}_size_{set_size}_*model_{model}*.json"
+                            pdb_files = glob.glob(os.path.join(pdb_path, pattern))
+                            if len(pdb_files)>0:
+                                score_file = glob.glob(os.path.join(pdb_path, score_file_pattern))[0]
+                                pdb_file = pdb_files[0]
+                                with open(score_file,"r") as f:
+                                    plddt_scores = pd.read_json(f)
+                                avg_plddt = np.mean(plddt_scores["plddt"])/100
+                                o.update({'msa_path': f"{save_dir}/msa_ss/model_{model}/ss_MRF_{ii}_2_MRF_{jj}_size_{set_size}.a3m"})
+                                o.update({'pdb_path': pdb_file})
+                                o.update({'score_path': score_file})
+                                o.update({'model': model})
+                                o.update({'avg_plddt': avg_plddt})
+                                o.update({'avg_pae': np.mean(np.mean(np.array(plddt_scores["pae"])))})
+                                o.update({'max_pae': plddt_scores["max_pae"].iloc[0]})
+                                o.update({'ptm': plddt_scores["ptm"].iloc[0]})
+                                o.update
+                                outputs.append(o)
             # Combine dataframes
             outputs_bss = pd.read_json(f"{base_output_dir}{jobname}/bss_res/outputs_bss.json.zip")
             outputs = pd.DataFrame.from_records(outputs)
