@@ -41,7 +41,7 @@ def process_jobname(jobname, cov, mode):
             coreset_data = pd.read_json(f"{coreset_dir}/coreset.json.zip")
             TMscores_SMICE = np.array([coreset_data['TMscore1'],coreset_data['TMscore2']])
         if mode in ["clust", "random"]:
-            tmscores_comp = np.load(f"{base_dir_AFclust_random}{jobname}_TMscores_{mode}_alpha_10.npy")
+            tmscores_comp = np.load(f"{base_dir_AFclust_random}{jobname}_TMscores_{mode}.npy")
             tmscores_comp = tmscores_comp.reshape((2, len(tmscores_comp)//2))
         else:
             print(f"competing method: {mode} not recognized")
