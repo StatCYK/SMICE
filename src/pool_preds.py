@@ -27,7 +27,7 @@ base_result_dir = config["base_result_dir"]
 
 true_pdb_path = config["true_pdb_path"]
 
-def process_BSS_jobname(jobname):R
+def process_BSS_jobname(jobname):
     try:
         outputs=[]
         lamb_list = []
