@@ -30,11 +30,13 @@ check this link [https://github.com/HWaymentSteele/AF_Cluster](https://github.co
 
 
 ## Dataset
-Upload and unzip the MSA files [MSA_cov75_all.zip](https://drive.google.com/file/d/1sTRjkz6UXTvQKDi33I8Xx3jcCd0O8a1S/view?usp=drive_link) to the base directory
+- Upload and unzip the MSA files [MSA_cov75_all.zip](https://drive.google.com/file/d/1sTRjkz6UXTvQKDi33I8Xx3jcCd0O8a1S/view?usp=drive_link) to the base directory
 
-unzip the pdb files of the true conformations pdbs_92.zip
+- unzip the pdb files of the true conformations pdbs_92.zip
 
-unzip PDB_annotations.txt.zip
+- unzip PDB_annotations.txt.zip
+
+- unzip AFclust_random_res.zip
 ## Run Experiment on benchmark foldswitching proteins
 `cd bash/benchmark_exp`
 
