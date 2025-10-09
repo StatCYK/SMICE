@@ -72,7 +72,7 @@ def save_cluster_centers_pdbs(jobname, cluster_files, cluster_sizes):
         str: Path to the created ZIP file
     """
     # Determine ZIP file name
-    zip_filename = f"{base_output_dir}{jobname}/cluster_centers_greedy.zip"
+    zip_filename = f"{base_output_dir}{jobname}/RepStructure.zip"
     
     # Create directory if it doesn't exist
     os.makedirs(os.path.dirname(zip_filename), exist_ok=True)
@@ -188,7 +188,7 @@ value_counts = cluster_res_df['cluster_file'].value_counts()
 low_freq_elements = value_counts[value_counts < cluster_size_threshold].index.tolist()
 cluster_res_filtered = cluster_res_df[~cluster_res_df['cluster_file'].isin(low_freq_elements)]
 cluster_files_filtered = list(set(cluster_res_filtered['cluster_file']))
-cluster_dir = f"{base_output_dir}{jobname}/cluster_greedy_fast"
+cluster_dir = f"{base_output_dir}{jobname}/Clustering_Res"
 os.makedirs(cluster_dir, exist_ok=True)
 cluster_res_filtered.to_csv(f"{cluster_dir}/res_cluster.tsv", sep='\t')
 cluster_indices = np.array([filtered_files.index(file) for file in cluster_files_filtered ])
