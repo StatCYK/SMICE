@@ -83,3 +83,18 @@ Analyze relationships between confidence metrics and TMscores:
 `cd experiment/analysis`
 
 `python confidence_metric_analysis.py`
+
+
+## The outputs
+All generated files are organized as follows:
+
+*   **Job Outputs** are saved in a subfolder (named by the PDB ID) within the directory specified by `base_output_dir` in `config/config_SMICE_benchmark.json`. This includes:
+    *   Sampled MSA subsets and predicted PDB files for different steps of SMICE
+    *   `RepStructure.zip` (contains the extracted representative structures)
+    *   `Clustering_Res` (contains the detailed clustering results)
+    *   `outputs_SMICE.json.zip` (the file paths of the predicted PDB files, the corresponding MSA file paths, and the corresponding confidence scores)
+
+*   **Results & Analysis** are saved in the directory specified by `base_result_dir` in `config/config_SMICE_benchmark.json`. This includes summary figures for:
+    *   TM-score scatter plots
+    *   Comparison results
+    *   Confidence metric analysis
