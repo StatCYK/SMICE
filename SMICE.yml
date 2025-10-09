@@ -246,3 +246,4 @@ dependencies:
       - msgpack
       - tmtools
       - kmedoids 
+      - plotly
