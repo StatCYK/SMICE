@@ -247,3 +247,4 @@ dependencies:
       - tmtools
       - kmedoids 
       - plotly
+      - kaleido
