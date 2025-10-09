@@ -12,7 +12,6 @@ sys.path.insert(0, os.getcwd())
 import sys
 import pickle
 import traceback
-import plotly.graph_objects as go
 import zipfile
 import json
 
