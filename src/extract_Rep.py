@@ -27,7 +27,6 @@ jobname = sys.argv[1]
 with open('../config/config_SMICE_benchmark.json', 'r') as f:
     config = json.load(f)
 
-
 base_output_dir = config["base_output_dir"]
 base_result_dir = config["base_result_dir"]
 MSA_saved_basedir = config["MSA_saved_basedir"]
@@ -130,7 +129,7 @@ for model in range(1,6):
 outputs_full = pd.DataFrame.from_records(outputs_full)
 
 TMscore_threshold = 0.85
-cluster_size_threshold = 0
+cluster_size_threshold = 3
 cluster_res = []
 clusters_files = []
 clusters_files.append(outputs_full.nlargest(1, 'avg_plddt')['pdb_path'].iloc[0])
@@ -183,23 +182,7 @@ while len(files_to_cluster) > cluster_size_threshold:
     if len(files_to_cluster)>cluster_size_threshold:
         select_idx +=1
         clusters_files.append(next_cluster_file)
-    # if num_clusters>400:
-    #     ## restart clustering with lower TMscore_threshold
-    #     TMscore_threshold -= 0.2
-    #     cluster_res = []
-    #     clusters_files = []
-    #     clusters_files.append(filtered_data[filtered_data['source'] == 'full'].nlargest(1, 'avg_plddt')['pdb_path'].iloc[0])
-    #     select_idx = 0
-    #     num_clusters = 0
-    #     ## create tmp folder to store files_to_cluster 
-    #     files_to_cluster_Dir = f"{base_output_dir}{jobname}/all_preds/"
-    #     ## delete the whole dir if it exists
-    #     if os.path.exists(files_to_cluster_Dir):
-    #         shutil.rmtree(files_to_cluster_Dir)
-    #     os.makedirs(files_to_cluster_Dir, exist_ok=True)
-    #     files_to_cluster = [f"{i}.pdb" for i in range(len(filtered_files))]
-    #     for source, target in zip(filtered_files, files_to_cluster):
-    #         extract_substructure_biopython(source, os.path.join(files_to_cluster_Dir, target), start_res, end_res)
+
 cluster_res_df = pd.DataFrame(cluster_res)
 value_counts = cluster_res_df['cluster_file'].value_counts()
 low_freq_elements = value_counts[value_counts < cluster_size_threshold].index.tolist()
@@ -211,8 +194,6 @@ cluster_res_filtered.to_csv(f"{cluster_dir}/res_cluster.tsv", sep='\t')
 cluster_indices = np.array([filtered_files.index(file) for file in cluster_files_filtered ])
 print(f"finish cluster selection for {jobname}")
 cluster_rows = filtered_data.iloc[cluster_indices]
-output_file = f"{cluster_dir}/cluster.json.zip"
-cluster_rows.to_json(output_file, index=False)
 cluster_info = {
     'jobname': jobname,
     'pdb_path': cluster_rows['pdb_path'].tolist(),
@@ -220,7 +201,7 @@ cluster_info = {
     'score_path':cluster_rows['score_path'].tolist(),
     'n_cluster':len(cluster_files_filtered)
 }
-cluster_file = f"{cluster_dir}/cluster.json"
+cluster_file = f"{cluster_dir}/cluster.json.zip"
 with open(cluster_file, 'w') as f:
     json.dump(cluster_info, f)
 # Save PDB files for this cluster
@@ -232,34 +213,11 @@ save_cluster_centers_pdbs(jobname, cluster_files_sorted, cluster_sizes_sorted)
 
 ### visualization of selected cluster
 if PCA_visualization:
-    mdl = PCA(random_state=42)
-    ## create tmp folder for foldseek
-    shutil.rmtree(files_to_cluster_Dir)
-    os.makedirs(files_to_cluster_Dir, exist_ok=True)
-    all_files_copy = [f"{i}.pdb" for i in range(len(filtered_files))]
-    for source, target in zip(filtered_files, all_files_copy):
-        extract_substructure_biopython(source, os.path.join(files_to_cluster_Dir, target),start_res,  end_res)
-    if os.path.exists(cluster_Dir):
-            shutil.rmtree(cluster_Dir)
-    os.makedirs(cluster_Dir, exist_ok=True)
-    cluster_files_copy = [f"{i}.pdb" for i in range(len(cluster_indices))]
-    for source, target in zip(list(cluster_info['pdb_path']), cluster_files_copy):
-        extract_substructure_biopython(source, os.path.join(cluster_Dir, target),start_res,  end_res)
-    if os.path.exists(f"{Res_Dir}"):
-        shutil.rmtree(f"{Res_Dir}")
-    os.makedirs(Res_Dir, exist_ok=True)
-    os.system(f'../bash/benchmark_exp/foldseek_computeTM.sh {cluster_Dir} {files_to_cluster_Dir} {Res_Dir}')
-    TMscores_cluster2all_res = pd.read_csv(f"{Res_Dir}res.csv", sep='\t', header=None,
-        names=['all_files','cluster_files','TMscore'])
-    TMscores2cluster_df = TMscores_cluster2all_res.pivot(index='all_files', columns='cluster_files', values='TMscore').sort_index()
-    TMscores2cluster = np.array(TMscores2cluster_df)
-    TMscores2cluster = np.where(np.isnan(TMscores2cluster), np.nanmean(TMscores2cluster, axis=1, keepdims=True), TMscores2cluster)
-    embedding = mdl.fit_transform(TMscores2cluster)
     # Visualization 
     mdl = PCA(n_components=2, random_state=42)
     contacts_SMICE_filtered = np.array([get_contacts(pdb_file) for pdb_file in filtered_data["pdb_path"]])
     contacts_SMICE_cluster = np.array([get_contacts(pdb_file) for pdb_file in cluster_rows["pdb_path"]])
-    embedding = mdl.transform(contacts_SMICE_filtered )
+    embedding = mdl.fit_transform(contacts_SMICE_filtered )
     plt.figure(figsize=(7, 6))
     if TMscore_visualize:
         outputs_SMICE['max_TMscore'] = outputs_SMICE.apply(lambda x: max(x['TMscore1'], x['TMscore2']), axis=1)
@@ -270,6 +228,8 @@ if PCA_visualization:
                         cmap='RdYlBu',
                         vmin=-v_abs_max, vmax=v_abs_max,
                         alpha=0.6)
+        cbar = plt.colorbar(sc)
+        cbar.set_label('signed Max-TMscore')
     else:
         sc = plt.scatter(embedding[:, 0], embedding[:, 1], 
                         c="blue", 
@@ -278,8 +238,6 @@ if PCA_visualization:
                marker='*', s=200, c='black', 
                edgecolors='white', linewidths=0.5,
                label='Rep. Structures')
-    cbar = plt.colorbar(sc)
-    cbar.set_label('signed Max-TMscore')
     plt.xlabel('PC 1')
     plt.ylabel('PC 2')
     plt.legend()
@@ -288,3 +246,15 @@ if PCA_visualization:
     plot_file = f"{plot_dir}/pca_cluster.png"
     plt.savefig(plot_file, dpi=300, bbox_inches='tight')
     plt.close()
+
+## delete all tem folders
+if os.path.exists(files_to_cluster_Dir):
+    shutil.rmtree(files_to_cluster_Dir)
+
+if os.path.exists(cluster_Dir):
+    shutil.rmtree(cluster_Dir)
+
+if os.path.exists(Res_Dir):
+    shutil.rmtree(Res_Dir)
+
+
