@@ -16,6 +16,7 @@ Via mamba (recommended): `mamba env create -f SMICE.yml`
 
 or via conda: `conda env create -f SMICE.yml`
 
+ - This takes 10-15 mins to build
 ### Install external packages
 
 * HHsuite: refer to [https://github.com/soedinglab/hh-suite](https://github.com/soedinglab/hh-suite) for installation
