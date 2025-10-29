@@ -101,6 +101,6 @@ All generated files are organized as follows:
     *   Confidence metric analysis
  
 ## Run Locally
-The [SMICE code](https://drive.google.com/file/d/1EWiAxNt7OiNrWYUrvmZ-3AmYRp2YcKGs/view?usp=drive_link) for running locally is provided. Since colabFold will run 10 times slower for a system without an Nvidia GPU/CUDA driver, we reduce the MSA sampling size of SMICE. An example can be executed by running the following script from the `bash/benchmark_exp directory`:
+The [SMICE code](https://drive.google.com/file/d/1EWiAxNt7OiNrWYUrvmZ-3AmYRp2YcKGs/view?usp=drive_link) for running locally is provided. Since colabFold will run 10 times slower for a system without an Nvidia GPU/CUDA driver, we reduce the MSA sampling size of SMICE. It could take over 20 hours on a desktop computer.  An example can be executed by running the following script from the `bash/benchmark_exp` directory:
 
 `./run_SMICE_exmp_local.sh`
