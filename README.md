@@ -4,7 +4,7 @@ This repository contains the code to produce the results in the paper "Uncoverin
 
 ## Installation
 
-### Basic requirements(Code was run and tested on LINUX machines.)
+### Basic requirements (Code was run and tested on LINUX machines.)
 
 * cuda version >=12
 * cudnn version >=9
@@ -17,6 +17,7 @@ Via mamba (recommended): `mamba env create -f SMICE.yml`
 or via conda: `conda env create -f SMICE.yml`
 
  - This takes 10-15 mins to build
+
 ### Install external packages
 
 * HHsuite: refer to [https://github.com/soedinglab/hh-suite](https://github.com/soedinglab/hh-suite) for installation
@@ -35,6 +36,7 @@ or via conda: `conda env create -f SMICE.yml`
 - Unzip `PDB_annotations.txt.zip`
 
 ## Run SMICE on benchmark fold-switching proteins
+The instructions in this section assume access to a Slurm-based high-performance computing cluster. For instructions on how to run an example on a local workstation or laptop, please skip to the "Run Locally" section at the end of this README.
 
 `cd bash/benchmark_exp`
 
@@ -101,6 +103,14 @@ All generated files are organized as follows:
     *   Confidence metric analysis
  
 ## Run Locally
-The [SMICE code](https://drive.google.com/file/d/1EWiAxNt7OiNrWYUrvmZ-3AmYRp2YcKGs/view?usp=drive_link) for running locally is provided. Since colabFold will run 10 times slower for a system without an Nvidia GPU/CUDA driver, we reduce the MSA sampling size of SMICE. It could take over 20 hours on a desktop computer.  An example can be executed by running the following script from the `bash/benchmark_exp` directory:
+The [SMICE code](https://drive.google.com/file/d/1EWiAxNt7OiNrWYUrvmZ-3AmYRp2YcKGs/view?usp=drive_link) for running locally is provided, which can be downloaded and unzipped on a local workstation or laptop.
 
-`./run_SMICE_exmp_local.sh`
+* Follow the same "Installation" and "Dataset" instructions as above.
+
+* Set the paths in `config/config_SMICE_benchmark.json` to match your local folder setup.
+
+* Activate the `SMICE` environment, and set your `CONDA_PREFIX` accordingly in line 33 of `run_SMICE_exmp_local.sh` in the `bash/benchmark_exp` directory.
+
+* Colabfold will use the GPU if available. Otherwise, CPU-based colabFold will run ~10 times slower on a system without an Nvidia GPU/CUDA driver, so we reduce the MSA sampling size of SMICE for demonstration purposes. Note that this could take over 20 hours on a desktop computer, but will run significantly faster if a recent GPU is available.  An example can be executed by running the following script from the `bash/benchmark_exp` directory:
+
+    `./run_SMICE_exmp_local.sh`
