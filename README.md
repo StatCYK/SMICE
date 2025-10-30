@@ -103,7 +103,7 @@ All generated files are organized as follows:
     *   Confidence metric analysis
  
 ## Run Locally
-The [SMICE code](https://drive.google.com/file/d/1EWiAxNt7OiNrWYUrvmZ-3AmYRp2YcKGs/view?usp=drive_link) for running locally is provided, which can be downloaded and unzipped on a local workstation or laptop.
+The [SMICE code](https://drive.google.com/drive/folders/1i9BZG2pvLqs_Bz1EXdcldZiKEtiAted-?usp=sharing) for running locally is provided, which can be downloaded and unzipped on a local workstation or laptop.
 
 * Follow the same "Installation" and "Dataset" instructions as above.
 
