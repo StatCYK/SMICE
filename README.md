@@ -111,10 +111,10 @@ The [SMICE code](https://drive.google.com/drive/folders/1i9BZG2pvLqs_Bz1EXdcldZi
 
 * Activate the `SMICE` environment, and set your `CONDA_PREFIX` accordingly in line 33 of `run_SMICE_exmp_local.sh` in the `bash/benchmark_exp` directory.
 
-* Colabfold will use the GPU if available. Otherwise, CPU-based colabFold will run ~10 times slower on a system without an Nvidia GPU/CUDA driver, so we reduce the MSA sampling size of SMICE for demonstration purposes. Note that this could take over 20 hours on a desktop computer, but will run significantly faster if a recent GPU is available.  A toy example can be executed by running the following script from the `bash/benchmark_exp` directory:
+* Colabfold will use the GPU if available. Otherwise, CPU-based colabFold will run ~10 times slower on a system without an Nvidia GPU/CUDA driver, so we reduce the MSA sampling size of SMICE for demonstration purposes. Note that this could take over 20 hours on a desktop computer, but will run significantly faster if a recent GPU is available. This demonstration version for an example protein can be executed by running the following script from the `bash/benchmark_exp` directory:
 
     `./run_SMICE_exmp_local_toy.sh`
 
-To run the full version, run the following script from the `bash/benchmark_exp` directory:
+* To instead run the full version of SMICE for this example, run the following script from the `bash/benchmark_exp` directory:
 
     `./run_SMICE_exmp_local.sh`
