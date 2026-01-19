@@ -14,6 +14,8 @@ from IPython.display import HTML
 import pickle
 import random
 import requests
+import warnings
+warnings.filterwarnings('ignore')
 # from api import run_mmseqs2
 import matplotlib.pyplot as plt
 import string
@@ -446,56 +448,6 @@ def one_hot(x,cat=None):
   if cat is None: cat = np.max(x)+1
   oh = np.concatenate((np.eye(cat),np.zeros([1,cat])))
   return oh[x]
-
-def sweep_dbscan(msa, deletion_matrix, verbose=True, min_eps=3, max_eps=20, eps_step=0.5,min_samples=5):
-  '''Input: MSA with shape N, L (N=num sequences, L=length) where chars are integers
-  Ouptut: list of MSA clusters. each is shape [M,L] where M is variable, is the length of the new clustered MSA.
-  Each cluster MSA has query sequence at start
-  '''
-
-  N, L = msa.shape
-  ohe_msa = one_hot(msa).reshape(N,-1)
-  eps_test_vals=np.arange(min_eps, max_eps+eps_step, eps_step)
-  smaller_split = np.random.choice(range(len(msa)), int(len(msa)/4))
-  test_split = ohe_msa[smaller_split]
-  n_clusters=[]
-  if verbose:
-    print('eps\tnum clusters\tn not clustered')
-  for eps in eps_test_vals:
-    clustering = DBSCAN(eps=eps, min_samples=min_samples).fit(test_split)
-    n_clust = len(set(clustering.labels_))
-    n_not_clustered = len(clustering.labels_[np.where(clustering.labels_==-1)])
-    if verbose:
-       print('%.2f\t%d\t%d' % (eps, n_clust, n_not_clustered))
-    n_clusters.append(n_clust)
-    if eps>10 and n_clust==1:
-        break
-
-  eps_max = eps_test_vals[np.argmax(n_clusters)]
-  if verbose: print("eps max:", eps_max)
-  clustering = DBSCAN(eps=eps_max, min_samples=min_samples).fit(ohe_msa)
-  clusters = [x for x in list(set(clustering.labels_)) if x>=0]
-  n_not_clustered = len(clustering.labels_[np.where(clustering.labels_==-1)])
-  if verbose:
-    print('%d clusters' % len(clusters))
-    print('%d seqs not clustered' % n_not_clustered)
-
-  clustered_msas=[]
-  clustered_dtxs=[]
-  query_seq=msa[0]
-  query_dtx = deletion_matrix[0]
-
-  for c in clusters:
-    cluster_msa = msa[np.where(clustering.labels_==c)]
-    cluster_dtx = deletion_matrix[np.where(clustering.labels_==c)]
-    cluster_msa = np.concatenate([[query_seq], cluster_msa])
-    cluster_dtx = np.concatenate([[query_dtx], cluster_dtx])
-
-    clustered_msas.append(cluster_msa)
-    clustered_dtxs.append(cluster_dtx)
-
-  return clustered_msas, clustered_dtxs
-
 
 def make_msa_arr(msa, query_seq):
     # get dists between each member of msa and query seq
@@ -1312,7 +1264,7 @@ def GREMLIN(msa, opt_type="adam", opt_iter=100, opt_rate=1.0, batch_size=None,la
     sess.run(V.assign(V_ini))
     # compute loss across all data
     get_loss = lambda: round(sess.run(loss,feed(feed_all=True)) * msa["neff"],2)
-    print("starting",get_loss())
+    #print("starting",get_loss())
     if opt_type == "lbfgs":
       lbfgs = tf.contrib.opt.ScipyOptimizerInterface
       opt = lbfgs(loss,method="L-BFGS-B",options={'maxiter': opt_iter})
@@ -1461,7 +1413,7 @@ def seq_sample_all_bayes_weight(msa,prob_init,prob_weight, ntries = 10,lamb = 2,
     N = len(msa)
     if N<100:
         min_sample_size = 10
-        max_sample_size = 50
+        max_sample_size = 20
     elif N<500:
         min_sample_size = 10
         max_sample_size = 100
@@ -1489,7 +1441,7 @@ def seq_sample_bayes_weight(msa,prob_init,prob_weight,seed=123,lamb = 2,tau = 10
     random.shuffle(shuf_idx) 
     shuf_msa = [shuf_msa[idx] for idx in shuf_idx]# randomly permute MSA
     samp_msa = []
-    cur_seq_prob = prob_init
+    cur_seq_prob = prob_init#seq_prob(samp_msa)
     cur_entropy_vec,delta_p_exp,delta_p_sd_inv = seq_entropy_exp_sd(cur_seq_prob)
     M = abs(np.sum(abs(max_to_onehot(cur_seq_prob)-cur_seq_prob), 1) )
     for seq in shuf_msa:
@@ -1537,7 +1489,7 @@ def plot_ss_MSA(msa_embedded,selected_indices,file_name):
     plt.savefig(file_name)        
     plt.cla()
 
-def run_BSS(msa, a3m_path, jobname, save_dir,lamb_list = [0,1,2,3]):
+def run_BSS(msa, a3m_path, jobname, save_dir,lamb_list = [0,1,2,3],return_msa=False,n_tries = 2):
     random.seed(123)
     np.random.seed(123)
     prob_weight = 1-np.mean(msa==21,0)
@@ -1552,6 +1504,7 @@ def run_BSS(msa, a3m_path, jobname, save_dir,lamb_list = [0,1,2,3]):
     umap_reducer = UMAP(n_components=2, random_state=42,n_neighbors=30,metric = "precomputed")  # Use UMAP with 2 components
     msa_embedded = umap_reducer.fit_transform(msa_dist)
     np.save(save_dir+"/msa_embedded.npy", msa_embedded)
+    msa_samples_indices_all =[]
     for n_neighbors in n_neighbors_list:  
         nn = NearestNeighbors(n_neighbors=n_neighbors).fit(ohe_msa)
         distances, indices = nn.kneighbors(ohe_msa)
@@ -1585,15 +1538,15 @@ def run_BSS(msa, a3m_path, jobname, save_dir,lamb_list = [0,1,2,3]):
             IDs_ss = [IDs[0]]
             IDs_ss.extend([IDs[idx] for idx in msa_clustered_indices[k]])
             write_fasta(IDs_ss, msa_ss_seqs, outfile=save_msa_cluster_dir+'cluster_%02d'% k +'.a3m') 
-            plot_ss_MSA(msa_embedded,msa_clustered_indices[k],save_fig_cluster_dir +"msa_cluster_%d_umap.jpg"%k)
+            #plot_ss_MSA(msa_embedded,msa_clustered_indices[k],save_fig_cluster_dir +"msa_cluster_%d_umap.jpg"%k)
         for lamb in lamb_list:
             save_fig_ss_dir = save_dir+"/res_fig/sub_MSA_bayes_lamb%d_neighbors%d/"%(lamb,n_neighbors)
             save_msa_ss_dir = save_dir+"/msa_ss_bayes_lamb%d_neighbors%d/"%(lamb,n_neighbors)
             os.makedirs(save_fig_ss_dir, exist_ok=True)
             os.makedirs(save_msa_ss_dir, exist_ok=True)
+            #if not os.path.exists(save_msa_ss_dir+"/msa_sample.pkl"):
             ### extract coresets for the prior's the concentration parameters
             msa_samples = []
-            n_tries = 3
             averaged_probs_mat = averaged_probs.reshape(N,L,22)
             prob_init_list = [averaged_probs_mat[0]]
             prob_init_list.extend([averaged_probs_mat[medoid_indices[c_ind]] for c_ind in range(n_coreset)])# prior's concentration parameters
@@ -1623,13 +1576,14 @@ def run_BSS(msa, a3m_path, jobname, save_dir,lamb_list = [0,1,2,3]):
                 pickle.dump(msa_samples, f)
             with open(save_msa_ss_dir+"/msa_samples_clabel.pkl", "wb") as f:
                 pickle.dump(msa_samples_clabel, f)
-            save_plot_cluster_msas(msa_samples,save_fig_ss_dir+"msa_sample.jpg", sort_by_dist=False)
+            #save_plot_cluster_msas(msa_samples,save_fig_ss_dir+"msa_sample.jpg", sort_by_dist=False)
             for c_ind in np.arange(len(msa_samples)):
                 msa_samp = msa_samples[c_ind]
                 msa_samp = np.concatenate((msa[0].reshape((1,-1)),msa_samp))
-                plot_ss_MSA(msa_embedded,msa_samples_indices[c_ind],save_fig_ss_dir +"msa_sample_%dth_prior_%d.jpg"%(c_ind,msa_samples_clabel[c_ind]))
-
-
+                #plot_ss_MSA(msa_embedded,msa_samples_indices[c_ind],save_fig_ss_dir +"msa_sample_%dth_prior_%d.jpg"%(c_ind,msa_samples_clabel[c_ind]))
+            msa_samples_indices_all.extend(msa_samples_indices)
+    if return_msa==True:
+        return msa_samples_indices_all
 def max_to_onehot(prob):
     one_hot = np.zeros_like(prob)
     one_hot[np.arange(len(prob)), np.argmax(prob, axis=1)] = 1
