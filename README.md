@@ -51,8 +51,12 @@ See `config/README.md` for details of setting up the configuration file
 Set the paths in `config/config_SMICE_benchmark.json` accordingly
 
 
-### Run one demo example ###
-`./run_SMICE_exmp.sh`
+### Run one demo example on Jupyter notebook ###
+`cd bash/demo`
+
+`chmod +x *.sh`
+
+set the path where your localcolabfold is installed in `bash/demo/colabfold.sh`
 
 ### Run on all benchmark proteins ###
 `./run_SMICE_all.sh`
@@ -101,7 +105,8 @@ All generated files are organized as follows:
     *   TM-score scatter plots
     *   Comparison results
     *   Confidence metric analysis
- 
+
+
 ## Run Locally
 The [SMICE code](https://drive.google.com/drive/folders/1i9BZG2pvLqs_Bz1EXdcldZiKEtiAted-?usp=sharing) for running locally is provided, which can be downloaded and unzipped on a local workstation or laptop.
 
