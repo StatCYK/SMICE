@@ -9,7 +9,7 @@ CONFIG_FILE="./config/config_SMICE_benchmark.json"
 module load gcc/12.2.0-fasrc01 python/3.10.12-fasrc01 cuda/12.4.1-fasrc01 cudnn
 
 # Set up environment
-export PATH="/n/kou_lab/yongkai/softwares/localcolabfold/conda/bin:$PATH"
+export PATH="Your_localcolabfold_path/conda/bin:$PATH"
 
 # Parse arguments
 INPUT_DIR="$1"
