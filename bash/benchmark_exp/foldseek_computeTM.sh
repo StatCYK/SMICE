@@ -1,7 +1,10 @@
 #!/bin/bash
 
-# 1. Source the software
-foldseek_dir=$(jq -r '.foldseek_dir' ../config/config_SMICE_benchmark.json)
+# Get the current directory where this script is located
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# 1. Source the software using relative path from script location
+foldseek_dir=$(jq -r '.foldseek_dir' "${SCRIPT_DIR}/../../config/config_SMICE_benchmark.json")
 
 # Remove any trailing slash and add bin to PATH
 export PATH="${foldseek_dir%/}/bin:$PATH"
