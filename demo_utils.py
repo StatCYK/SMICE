@@ -3,7 +3,7 @@ import re, tempfile
 from IPython.display import HTML
 import random
 import sys
-
+import traceback
 import matplotlib.pyplot as plt
 import string
 import numpy as np
