@@ -1,10 +1,9 @@
 import os, time, gc
-import glob
 import re, tempfile
 from IPython.display import HTML
 import random
 import sys
-import traceback
+import glob
 import matplotlib.pyplot as plt
 import string
 import numpy as np
@@ -16,6 +15,7 @@ import functools
 import json
 np.random.seed(123)
 random.seed(123)
+import traceback
 from get_MSA import process_jobname as run_get_MSA
 from colabdesign import mk_af_model, clear_mem
 from colabdesign.shared.protein import _np_rmsd
@@ -293,6 +293,35 @@ def extract_rep_strucs(jobname,filtered_data,outputs_full,base_output_dir,start_
     cluster_sizes = [member_counts[cluster_files_filtered[i]] for i in range(len(cluster_files_filtered))]
     cluster_files_sorted = [cluster_files_filtered[i] for i in np.argsort(cluster_sizes)[::-1]]
     cluster_sizes_sorted = np.sort(cluster_sizes)[::-1]
+    def save_cluster_centers_pdbs(jobname, cluster_files, cluster_sizes):
+        """
+        Save PDB files of cluster centers directly to a ZIP file.
+        Args:
+            jobname (str): Name of the job
+            cluster_indices (list): Indices of cluster centers
+            filtered_data (DataFrame): DataFrame containing all structures
+        Returns:
+            str: Path to the created ZIP file
+        """
+        # Determine ZIP file name
+        zip_filename = f"{base_output_dir}{jobname}/RepStructure.zip"
+
+        # Create directory if it doesn't exist
+        os.makedirs(os.path.dirname(zip_filename), exist_ok=True)
+        # Create ZIP file and add PDB files
+        try:
+            with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for i in range(len(cluster_files)):
+                    src_path = cluster_files[i]
+                    cluster_size = cluster_sizes[i]
+                    internal_filename = f"cluster_center_{i+1}_size_{cluster_size}.pdb"
+                    # Add file to ZIP
+                    zipf.write(src_path, arcname=internal_filename)
+            print(f"Successfully created ZIP file: {zip_filename}")
+            return zip_filename  
+        except Exception as e:
+            print(f"Failed to create ZIP file {zip_filename}. Reason: {e}")
+            return None
     save_cluster_centers_pdbs(jobname, cluster_files_sorted, cluster_sizes_sorted)
 
     ### visualization of selected cluster
@@ -348,32 +377,3 @@ def extract_substructure_biopython(pdb_file, output_file, start_res, end_res):
     io.set_structure(structure)
     io.save(output_file, ResidueSelect())
 
-def save_cluster_centers_pdbs(jobname, cluster_files, cluster_sizes):
-    """
-    Save PDB files of cluster centers directly to a ZIP file.
-    Args:
-        jobname (str): Name of the job
-        cluster_indices (list): Indices of cluster centers
-        filtered_data (DataFrame): DataFrame containing all structures
-    Returns:
-        str: Path to the created ZIP file
-    """
-    # Determine ZIP file name
-    zip_filename = f"{base_output_dir}{jobname}/RepStructure.zip"
-    
-    # Create directory if it doesn't exist
-    os.makedirs(os.path.dirname(zip_filename), exist_ok=True)
-    # Create ZIP file and add PDB files
-    try:
-        with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:
-            for i in range(len(cluster_files)):
-                src_path = cluster_files[i]
-                cluster_size = cluster_sizes[i]
-                internal_filename = f"cluster_center_{i+1}_size_{cluster_size}.pdb"
-                # Add file to ZIP
-                zipf.write(src_path, arcname=internal_filename)
-        print(f"Successfully created ZIP file: {zip_filename}")
-        return zip_filename  
-    except Exception as e:
-        print(f"Failed to create ZIP file {zip_filename}. Reason: {e}")
-        return None
