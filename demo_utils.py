@@ -21,7 +21,9 @@ from colabdesign import mk_af_model, clear_mem
 from colabdesign.shared.protein import _np_rmsd
 import shutil  # Added for file operations
 import zipfile
-
+module_dir = "./src"
+sys.path.append(module_dir)
+from util_SMICE import *
 from io import BytesIO
 from Bio import PDB
 from Bio.PDB import PDBIO
