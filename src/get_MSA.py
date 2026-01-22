@@ -19,7 +19,12 @@ random.seed(123)
 import sys
 module_dir = "./"
 sys.path.append(module_dir)
-with open('../config/config_SMICE_benchmark.json', 'r') as f:
+# Get the directory where the current script is located
+script_dir = os.path.dirname(os.path.abspath(__file__))
+# Go up one level from script directory, then into config folder
+config_path = os.path.join(script_dir, '..', 'config', 'config_SMICE_benchmark.json')
+
+with open(config_path, 'r') as f:
     config = json.load(f)
 
 
