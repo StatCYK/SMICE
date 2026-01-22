@@ -1,20 +1,17 @@
 
 #!/bin/bash
 
-# Load configuration
-CONFIG_FILE="./config/config_SMICE_benchmark.json"
-
-
-# Load required modules
-module load gcc/12.2.0-fasrc01 python/3.10.12-fasrc01 cuda/12.4.1-fasrc01 cudnn
-
-# Set up environment
-export PATH="Your_localcolabfold_path/conda/bin:$PATH"
 
 # Parse arguments
 INPUT_DIR="$1"
 OUTPUT_DIR="$2"
-shift 2
+localcolabfold_DIR="$3"
+
+# Set up environment
+export PATH="$localcolabfold/conda/bin:$PATH"
+
+
+shift 3
 
 # Set models (default or provided)
 MODELS=("$@")
