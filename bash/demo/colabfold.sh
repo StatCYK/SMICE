@@ -1,7 +1,4 @@
-
 #!/bin/bash
-
-
 # Parse arguments
 INPUT_DIR="$1"
 OUTPUT_DIR="$2"
@@ -9,8 +6,6 @@ localcolabfold_DIR="$3"
 
 # Set up environment
 export PATH="$localcolabfold/conda/bin:$PATH"
-
-
 shift 3
 
 # Set models (default or provided)
@@ -23,10 +18,6 @@ mkdir -p "$OUTPUT_DIR"
 echo "Input directory: $INPUT_DIR"
 echo "Output directory: $OUTPUT_DIR"
 
-# # Process each model sequentially
-# for model in "${MODELS[@]}"; do
-#     echo "Processing model $model..."
- # Convert array to comma-separated string for --model-order
 MODEL_ORDER_STRING=$(IFS=,; echo "${MODELS[*]}")
 
 echo "Running all models: $MODEL_ORDER_STRING"
