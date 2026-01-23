@@ -17,7 +17,6 @@ echo "ColabFold directory: $LOCALCOLABFOLD_DIR"
 echo "========================================="
 
 # Set up environment
-module load gcc/12.2.0-fasrc01
 export PATH="$LOCALCOLABFOLD_DIR/conda/bin:$PATH"
 
 shift 3
