@@ -196,7 +196,7 @@ def fsr_identify(jobname,base_output_dir):
         plt.ylabel("Residue Index")
         plt.colorbar(label="contact distance variance")
         plt.savefig(f"{base_output_dir}{jobname}/contacts_variance.png")
-        plt.close()
+        plt.show()
         return {
             'jobname': jobname,
             'not_conserved_residues': not_conserved_residues,
@@ -332,10 +332,19 @@ def extract_rep_strucs(jobname,filtered_data,outputs_full,base_output_dir,start_
         contacts_SMICE_cluster = np.array([get_contacts(pdb_file) for pdb_file in cluster_rows["pdb_path"]])
         embedding = mdl.fit_transform(contacts_SMICE_filtered )
         plt.figure(figsize=(7, 6))
-
-        sc = plt.scatter(embedding[:, 0], embedding[:, 1], 
-                        c="blue", 
-                        alpha=0.6)
+        if TMscore_visualize:
+            outputs_SMICE['max_TMscore'] = outputs_SMICE.apply(lambda x: max(x['TMscore1'], x['TMscore2']), axis=1)
+            TM_score_diff = np.sign(filtered_data['TMscore1']-filtered_data['TMscore2'])*filtered_data['max_TMscore']
+            v_abs_max = np.max(np.max(TM_score_diff))
+            sc = plt.scatter(embedding[:, 0], embedding[:, 1], 
+                            c=TM_score_diff, 
+                            cmap='RdYlBu',
+                            vmin=-v_abs_max, vmax=v_abs_max,
+                            alpha=0.6)
+        else:
+            sc = plt.scatter(embedding[:, 0], embedding[:, 1], 
+                            c="blue", 
+                            alpha=0.6)
         plt.scatter(embedding[cluster_indices, 0], embedding[cluster_indices, 1], 
                    marker='*', s=200, c='black', 
                    edgecolors='white', linewidths=0.5,
@@ -347,7 +356,7 @@ def extract_rep_strucs(jobname,filtered_data,outputs_full,base_output_dir,start_
         os.makedirs(plot_dir, exist_ok=True)
         plot_file = f"{plot_dir}/pca_cluster.png"
         plt.savefig(plot_file, dpi=300, bbox_inches='tight')
-        plt.close()
+        plt.show()
 
         
 
