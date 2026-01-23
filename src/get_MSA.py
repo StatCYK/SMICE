@@ -1,5 +1,3 @@
-### this code is modified from https://github.com/HWaymentSteele/AF_Cluster/blob/e4d9909442827b2b12a0051971379a71ea0b2561/AF_cluster_in_colabdesign.ipynb ###
-
 import os, time, gc
 import re, tempfile
 from IPython.display import HTML
@@ -8,9 +6,9 @@ from api import run_mmseqs2
 import matplotlib.pyplot as plt
 import string
 import numpy as np
-from colabdesign.af.contrib import predict
 import pandas as pd
 import pickle
+from colabdesign.af.contrib import predict
 from multiprocessing import Pool, cpu_count
 import functools
 import json
@@ -19,6 +17,7 @@ random.seed(123)
 import sys
 module_dir = "./"
 sys.path.append(module_dir)
+
 # Get the directory where the current script is located
 script_dir = os.path.dirname(os.path.abspath(__file__))
 # Go up one level from script directory, then into config folder
@@ -35,6 +34,7 @@ base_result_dir = config["base_result_dir"]
 pdb_seq_file = config["pdb_seq_file"]
 MSA_saved_basedir = config["MSA_saved_basedir"]
 cov = 75
+
 
 def download_pdb_chain(pdb_id, chain_id, file_path):
     """
@@ -112,11 +112,12 @@ def run_hhalign(query_sequence, target_sequence, query_a3m=None, target_a3m=None
 def run_hhfilter(input, output, id=90, qid=10):
   os.system(f"hhfilter -id {id} -qid {qid} -i {input} -o {output}")
 
-def process_jobname(jobname, cov=75):
+def process_jobname(jobname, cov=75,sequence = None,pdb_seq_file = pdb_seq_file,MSA_saved_basedir = MSA_saved_basedir):
     try:
         copies = 1
-        sequence = get_sequence_by_pdb_id(pdb_seq_file,jobname[0:4]+"_"+jobname[4])
-        print(sequence)
+        if sequence ==None:
+            sequence = get_sequence_by_pdb_id(pdb_seq_file,jobname[0:4]+"_"+jobname[4])
+            print(sequence)
         # MSA options
         msa_method = "mmseqs2"
         pair_mode = "unpaired_paired"
@@ -167,9 +168,11 @@ def process_jobname(jobname, cov=75):
             do_not_filter=do_not_filter,
             mmseqs2_fn=run_mmseqs2,
             hhfilter_fn=run_hhfilter)
-        os.makedirs(save_dir+"/msa/", exist_ok=True)
-        np.save(save_dir+"/msa/msa.npy",msa)
-        np.save(save_dir+"/msa/del_mat.npy",deletion_matrix)
+        print(msa.shape)
+        if len(msa)>100:
+          os.makedirs(save_dir+"/msa/", exist_ok=True)
+          np.save(save_dir+"/msa/msa.npy",msa)
+          np.save(save_dir+"/msa/del_mat.npy",deletion_matrix)
         return f"Completed processing {jobname}"
     
     except Exception as e:
@@ -192,3 +195,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
