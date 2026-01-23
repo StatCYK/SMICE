@@ -13,6 +13,7 @@ from colabdesign.af.contrib import predict
 from multiprocessing import Pool, cpu_count
 import functools
 import json
+import subprocess
 np.random.seed(123)
 random.seed(123)
 import traceback
@@ -207,9 +208,7 @@ def fsr_identify(jobname,base_output_dir):
         print(f"Error processing {jobname}: {str(e)}")
         return None
     
-    
 def extract_rep_strucs(jobname,filtered_data,outputs_full,base_output_dir,start_res, end_res,PCA_visualization=True,TMscore_visualize=True):
-
     filtered_files = list(filtered_data['pdb_path'])
     filtered_plddt = list(filtered_data['avg_plddt'])
     TMscore_threshold = 0.85
@@ -228,6 +227,9 @@ def extract_rep_strucs(jobname,filtered_data,outputs_full,base_output_dir,start_
     for source, target in zip(filtered_files, files_to_cluster):
         extract_substructure_biopython(source, os.path.join(files_to_cluster_Dir, target), start_res, end_res)
     num_clusters = 0
+    print(f"\n{'='*60}")
+    print("Start Finding Representative Structures")
+    print(f"{'='*60}")
     while len(files_to_cluster) > cluster_size_threshold:
         cluster_file = clusters_files[select_idx]
         ## create tmp folder to store cluster file 
@@ -244,7 +246,12 @@ def extract_rep_strucs(jobname,filtered_data,outputs_full,base_output_dir,start_
         if os.path.exists(f"{Res_Dir}"):
             shutil.rmtree(f"{Res_Dir}")
         os.makedirs(Res_Dir, exist_ok=True)
-        os.system(f'./bash/benchmark_exp/foldseek_computeTM.sh {cluster_Dir} {files_to_cluster_Dir} {Res_Dir}')
+        subprocess.run(
+            ['bash', './bash/benchmark_exp/foldseek_computeTM.sh', 
+             cluster_Dir, files_to_cluster_Dir, Res_Dir],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
         Res = pd.read_csv(f"{Res_Dir}res.csv", sep='\t',header = None).sort_values(by=0)
         TM_scores_compare = np.array(Res[2])
         next_cluster_file = filtered_files[int(list(Res[0])[np.argmin(TM_scores_compare)] )]
@@ -263,6 +270,7 @@ def extract_rep_strucs(jobname,filtered_data,outputs_full,base_output_dir,start_
                 files_to_cluster.remove(file)
                 cluster_res_tmp.append(o)
             cluster_res.extend(cluster_res_tmp)
+            print(f"Remaining structures to cluster: {len(files_to_cluster)}")
         if len(files_to_cluster)>cluster_size_threshold:
             select_idx +=1
             clusters_files.append(next_cluster_file)
@@ -323,10 +331,13 @@ def extract_rep_strucs(jobname,filtered_data,outputs_full,base_output_dir,start_
             print(f"Failed to create ZIP file {zip_filename}. Reason: {e}")
             return None
     save_cluster_centers_pdbs(jobname, cluster_files_sorted, cluster_sizes_sorted)
-
+    print(f"\n{'='*60}")
+    print(f"{len(cluster_files_filtered)} Representative Structures are found")
+    print(f"{'='*60}")
     ### visualization of selected cluster
     if PCA_visualization:
         # Visualization 
+        print("Drawing PCA Visualization of the Representative Structures")
         mdl = PCA(n_components=2, random_state=42)
         contacts_SMICE_filtered = np.array([get_contacts(pdb_file) for pdb_file in filtered_data["pdb_path"]])
         contacts_SMICE_cluster = np.array([get_contacts(pdb_file) for pdb_file in cluster_rows["pdb_path"]])
@@ -358,6 +369,8 @@ def extract_rep_strucs(jobname,filtered_data,outputs_full,base_output_dir,start_
         plot_file = f"{plot_dir}/pca_cluster.png"
         plt.savefig(plot_file, dpi=300, bbox_inches='tight')
         plt.show()
+
+        
 
         
 
