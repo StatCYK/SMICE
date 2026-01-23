@@ -344,7 +344,6 @@ def extract_rep_strucs(jobname,filtered_data,outputs_full,base_output_dir,start_
         embedding = mdl.fit_transform(contacts_SMICE_filtered )
         plt.figure(figsize=(7, 6))
         if TMscore_visualize:
-            outputs_SMICE['max_TMscore'] = outputs_SMICE.apply(lambda x: max(x['TMscore1'], x['TMscore2']), axis=1)
             TM_score_diff = np.sign(filtered_data['TMscore1']-filtered_data['TMscore2'])*filtered_data['max_TMscore']
             v_abs_max = np.max(np.max(TM_score_diff))
             sc = plt.scatter(embedding[:, 0], embedding[:, 1], 
