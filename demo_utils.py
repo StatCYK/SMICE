@@ -341,6 +341,7 @@ def extract_rep_strucs(jobname,filtered_data,outputs_full,base_output_dir,start_
                             cmap='RdYlBu',
                             vmin=-v_abs_max, vmax=v_abs_max,
                             alpha=0.6)
+            cbar = plt.colorbar(sc, label='signed max-TMscore')
         else:
             sc = plt.scatter(embedding[:, 0], embedding[:, 1], 
                             c="blue", 
@@ -351,7 +352,7 @@ def extract_rep_strucs(jobname,filtered_data,outputs_full,base_output_dir,start_
                    label='Rep. Structures')
         plt.xlabel('PC 1')
         plt.ylabel('PC 2')
-        plt.legend()
+        #plt.legend()
         plot_dir = f"{cluster_dir}/plots"
         os.makedirs(plot_dir, exist_ok=True)
         plot_file = f"{plot_dir}/pca_cluster.png"
