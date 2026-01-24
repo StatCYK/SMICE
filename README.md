@@ -35,6 +35,12 @@ or via conda: `conda env create -f SMICE.yml`
 
 - Unzip `PDB_annotations.txt.zip`
 
+
+## Quick start demo with Jupyter notebook ##
+
+`demo.ipynb` provides a demo example on the KaiB protein. Set the directories in the notebook before run.
+
+
 ## Run SMICE on benchmark fold-switching proteins
 The instructions in this section assume access to a Slurm-based high-performance computing cluster. For instructions on how to run an example on a local workstation or laptop, please skip to the "Run Locally" section at the end of this README.
 
@@ -50,13 +56,6 @@ See `config/README.md` for details of setting up the configuration file
 
 Set the paths in `config/config_SMICE_benchmark.json` accordingly
 
-
-### Run one demo example on Jupyter notebook ###
-`cd bash/demo`
-
-`chmod +x *.sh`
-
-set the path where your localcolabfold is installed in `bash/demo/colabfold.sh`
 
 ### Run on all benchmark proteins ###
 `./run_SMICE_all.sh`
