@@ -38,7 +38,7 @@ or via conda: `conda env create -f SMICE.yml`
 
 ## Quick start demo with Jupyter notebook ##
 
-[demo.ipynb](https://github.com/StatCYK/SMICE/blob/master/demo.ipynb) provides a demo example on the KaiB protein. Set the directories in the notebook before run.
+[demo.ipynb](https://github.com/StatCYK/SMICE/blob/master/demo.ipynb) provides a demo on the KaiB protein and takes about an hour on an A100 GPU. Set the directories in the notebook before run.
 
 
 ## Run SMICE on benchmark fold-switching proteins
