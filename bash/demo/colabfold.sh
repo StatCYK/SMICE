@@ -17,7 +17,7 @@ echo "ColabFold directory: $LOCALCOLABFOLD_DIR"
 echo "========================================="
 
 # Set up environment
-export PATH="$LOCALCOLABFOLD_DIR/colabfold-conda/bin:$PATH"
+export PATH="$LOCALCOLABFOLD_DIR:$PATH"
 
 shift 3
 
