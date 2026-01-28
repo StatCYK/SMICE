@@ -1,4 +1,4 @@
-`config_SMICE_benchmark.json` stores a dictionary as described below
+`config_SMICE_benchmark.json` stores a dictionary as described below. Modify these in `config_SMICE_benchmark.json` as appropriate for your system.
 
 | key               |  Default   |         Description                                                                                                                  |
 |---------------------|-------------|----------------------------------------------------------------------------------------------------------------------------------------|

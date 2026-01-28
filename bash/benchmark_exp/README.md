@@ -1,3 +1,3 @@
-### Update all slurm file
+### Prepare all Slurm files
 
-Specify resource requirements and configuration options in all `*.slurm` files based on your available GPU resources
+Specify resource requirements and configuration options in all `*.slurm` files based on your available GPU resources.
