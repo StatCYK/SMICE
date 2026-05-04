@@ -169,7 +169,7 @@ def process_jobname(jobname, cov=75,sequence = None,pdb_seq_file = pdb_seq_file,
             mmseqs2_fn=run_mmseqs2,
             hhfilter_fn=run_hhfilter)
         print(msa.shape)
-        if len(msa)>100:
+        if len(msa)>20:
           os.makedirs(save_dir+"/msa/", exist_ok=True)
           np.save(save_dir+"/msa/msa.npy",msa)
           np.save(save_dir+"/msa/del_mat.npy",deletion_matrix)
